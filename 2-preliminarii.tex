@@ -1,0 +1,44 @@
+\chapter{Preliminarii}
+
+\section{One Class SVM}
+
+\subsection{Ideea algoritmului}
+
+Această metodă este inspirată din clasificatorul cu vectori suport. Ideea este 
+sa găsim un hiperplan cu margine maximă, posibil într-un spaţiu cu 
+mai multe dimensiuni decât cel iniţial, în funcţie de kernel,
+care să separe originea (se presupune că punctele sunt centrate) spaţiului de trăsături
+de restul punctelor din setul de date\cite{Schölkopf et al}.
+
+Un alt mod echivalent de a privi algoritmul este găsirea celei mai mici 
+hipersfere care să includă toate punctele din setul de date\cite{Tax et al.}.
+
+\subsection{Formularea matematică}
+
+\section{Gaussian Mixture Model}
+
+\subsection{Ideea algoritmului}
+
+Algoritmul încearcă să estimeze densitatea distribuţiei probabilităţii 
+din care au fost generate datele folosind o sumă ponderată de distribuţii Gaussiene.
+Astfel, putem modela distribuţii multimodale utilizând o distribuţie bine cunoscută.
+Parametrii necesari sunt ponderile, mediile şi covarianţele fiecărei componente.
+
+\subsection{Formularea matematică}
+
+\section{Kernel Density Estimation}
+
+\subsection{Ideea algoritmului}
+
+Precum Gaussian Mixture Model, algoritmul încearcă să estimeze densitatea 
+distribuţiei probabilităţii din care au fost generate datele.
+
+Un parametru numit "lăţime de bandă" influenţează netezimea distribuţiei 
+rezultate.
+Cel mai des utilizat kernel este cel Gaussian şi pe acesta îl vom folosi şi noi.
+
+Aici, pentru fiecare punct generăm o distribuţie Gaussiană cu media egală
+cu punctul respectiv şi deviaţie egală cu "lăţimea de bandă". Apoi, adunăm toate 
+distribuţiile obţinute mai sus si le împărţim la numărul total de puncte.
+
+\subsection{Formularea matematică}

@@ -1,0 +1,47 @@
+\chapter{Introducere}
+
+\section{Definiţia anomaliilor}
+
+O anomalie este o entitate ce difera semnificativ de restul enităţilor din 
+setul de date. Definitia lui Hawkins este urmatoarea\cite{Identification of Outliers}:
+"O anomalie este o observaţie ce deviază atât de mult faţă de restul observaţiilor,
+încât să creeze suspiciunea ca a fost generată de un mecanism diferit".
+
+Datele sunt colectate prin observarea unor procese din viaţa reală, precum funcţionarea
+unui motor sau traficul pe o reţea de calculatoare. În majoritatea timpului, procesele
+generează date ce corespund unei derulări normale, dar în anumite cazuri acestea se 
+comporta anormal si astfel apar anomaliile. Un exemplu ar putea fi activitatea unui
+motor defect.
+
+"Normalitatea" observaţiilor este definită
+de oameni. Algoritmii de învăţare automată pot să semnaleze potenţialele
+abateri, dar în final, decizia rămâne a omului.
+
+\section{Detecţia anomaliilor vs clasificare binară}
+
+\subsection{Greşeală comună}
+
+La prima vedere, aceste două probleme par sa coincidă. Un argument ar putea fi că 
+detecţia anomaliilor este de fapt o problemă de clasificare binară în care proporţia
+celor 2 clase este neechilibrată. Deşi este contraintuitiv, aceasta 
+afirmaţie este greşită.
+
+\subsection{Scopul detecţiei anomaliilor}
+
+Diferenţa constă în faptul că detecţia anomaliilor are la bază o singură clasa
+de referință. Observaţia fie aparţine acestei clase, fie aparţine oricărei alte clase 
+care este diferită de aceasta din urmă. Multitudinea de "clase diferite" ne indică
+faptul că este greu să definim ce înseamnă "diferit de normal", dar este relativ uşor
+să definim ce înseamnă "normal".
+Din acest motiv, 
+metoda este cel mai bine utilizată pe seturi de antrenare ce conţin numai clasa de 
+referință.
+
+\subsection{Scopul clasificării binare}
+
+La clasificarea binară, cele 2 clase sunt bine 
+definite şi de cele mai multe ori, trasăturile lor se suprapun în mai multe locuri. De 
+asemenea, această problemă acordă o importanţă egala celor 2 categorii, pe când
+eşecul de a semnala o anomalie este în general mult mai dăunător faţă de 
+detectarea unei observaţii normale ca fiind anormală. 
+
