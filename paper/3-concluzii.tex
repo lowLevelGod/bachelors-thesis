@@ -1,0 +1,71 @@
+\chapter{Concluzii}
+
+În această lucrare am ilustrat una din multitudinea de aplicaţii în industrie a 
+detecţiei anomaliilor, anume identificarea tranzacţiilor frauduloase. Am explorat un 
+set de date adnotat cu informaţii despre tranzacţii bancare şi am arătat cum putem evalua
+performanţa unor metode de învăţare automată nesupervizată folosind metrici din domeniul 
+învăţării supervizate, mai specific, clasificarea binară.
+
+Deşi tehnicile folosite aparţin învăţarii nesupervizate, am arătat cum putem exploata
+cunoştinţele din alte două categorii, anume semi-supervizată şi supervizată. 
+
+Prima a fost 
+utilă pentru faptul că am antrenat algoritmi pe un set de date mare fără să utilizăm 
+etichetele punctelor, dar apoi am folosit un set de date cu o mărime relativă mult mai mică
+pentru a analiza performanţa algoritmilor. 
+
+A doua a fost de folos pentru că ne-a oferit 
+o multitudine de metrici care într-un context strict nesupervizat nu ar fi existat, fiind 
+nevoie de inspecţia unui om pentru analiză.
+
+Alegerea metricilor corespunzătoare
+este probabil una din cele mai dificile părţi atunci când căutăm o soluţie eficientă pentru 
+problema dată, mai ales când proporţia de clase este neechilibrată şi acordăm o importanţă mai 
+mare unei clase faţă de cealaltă, întrucât o alegere greşită ne poate induce în eroare cu privinţă
+la utilitatea reală a algoritmului, după cum am şi demonstrat.
+
+De asemenea, am analizat trei algoritmi cu caracteristici diferite, dar cu 
+scopuri similare, anume idenfiticarea anomaliilor.
+
+One Class SVM se 
+foloseşte de un hiperplan de separare pentru a împărţi spaţiul Hilbert într-o porţiune 
+care cuprinde toate punctele normale şi una care cuprinde restul punctelor izolate. Astfel,
+putem spune că acesta face o clasificare dură a anomaliilor, întrucât ne indică doar daca
+o observaţie este normală sau nu. 
+
+La polul opus, avem Gaussian Mixture Model şi Kernel Density 
+Estimation care încearcă să estimeze funcţia densitate de probabilitate din care au fost 
+generate datele şi să atribuie fiecărei observaţii noi o valoare dată de această funcţie.
+Peste aceste probabilităţi se aplică un prag şi abia apoi obţinem etichetele corespunzătoare.
+Astfel, putem spune că acestea fac o clasificare slabă a anomaliilor, întrucât ne indică 
+cât de probabil este ca punctul să fie normal sau nu, dar nu ne indică concret clasa 
+de care aparţine.
+
+Deşi am întâmpinat probleme în ilustrarea graficului ROC Curve pentru algoritmul cu clasificare
+dură, am demonstrat cum putem transforma distanţele produse de funcţia de decizie în valori 
+de încredere pentru a obţine o clasificare slabă artificială.
+
+La final, am observat că modelele au performat mai mult sau mai puţin la fel, cele mai complexe 
+având un dezavantaj când vine vorba de complexitatea de timp.
+
+Cu toate acestea, lucrarea nu a abordat problema seriilor de timp, lucru des întâlnit în practică,
+dar care creează o direcţie de cercetare interesantă. Două cerinţe relevante pentru acest 
+subiect ar fi prognoza şi clasificarea seriilor de timp. 
+
+Prima se referă la prezicerea evoluţiei
+în timp a seriei de date şi este folosită ca suport pentru unele modele ce detectează anomaliile
+folosindu-se de deviaţia prognozei faţă de valorile observate. Prognoza se bazează strict pe 
+valorile punctelor din şir din contextul precedent şi pe modelul antrenat anterior. Deseori,
+se utilizează o fereastră glisantă de mărime unitară pentru a crea contextul şi a prezice 
+câte un punct pe rând. Este similar cu abordarea clasică 
+din domeniul Procesării Limbajului Natural, unde suntem interesaţi să prezicem cuvântul cel 
+mai potrivit pentru continuarea unei propoziţii, spre exemplu. Aici, putem privi cuvintele
+din text ca fiind puncte dintr-o serie de timp.
+
+A doua se referă la atribuirea unei categorii pentru diverse subşiruri din seriile de timp.
+Astfel, metoda poate fi folosită ori pentru post-procesarea rezultatelor obţinute după 
+detecţia anomaliilor pentru a categoriza diferitele valori deviante, ori chiar în cadrul 
+modelului cu rolul de a clasifica componentele din seriile de date în grupuri relevante,
+implict anomalii sau observaţii normale. Metoda ne aduce aminte de clasica problemă
+a clasificării unor puncte dintr-un set de date, întâlnită în contextul învăţării automate
+supervizate \cite{time-series}.

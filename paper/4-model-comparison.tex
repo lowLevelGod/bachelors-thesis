@@ -1,0 +1,494 @@
+\chapter{Evaluarea modelelor}
+
+Căutarea \textbf{hiperparametrilor optimi} se va realiza pentru fiecare model 
+în parte folosind setul de validare. La final, cele mai bune modele 
+găsite sunt evaluate într-un mod imparţial pe setul de testare. 
+
+\section{One Class SVM}
+
+Pentru a exploata capabilităţile de modelare a unei margini de decizie 
+neliniare a SVM-urilor, avem nevoie de funcţii kernel care să scufunde
+punctele din setul de date într-un spaţiu cu mai multe dimensiuni unde 
+să putem găsi mai uşor un hiperplan de separare.
+
+\begin{itemize}
+    \item \(K(x, y) = x^T y\) - \textbf{Liniar}
+    \item \(K(x, y) = (\gamma x^T y + c)^d\) - \textbf{Polinomial}
+    \item \(K(x, y) = \exp\left(-\gamma{\|x - y\|^2}\right)\) - \textbf{Gaussian}
+    \item \(K(x, y) = \tanh(\gamma x^T y + c)\) - \textbf{Sigmoid}
+\end{itemize}
+
+Un caz particular este kernel-ul \textbf{liniar} care păstrează punctele
+în spaţiul iniţial şi încearcă să găsească un hiperplan de separare 
+optim la fel ca în cazul clasic fără kernel al SVM-ului.
+Acest kernel este nepotrivit în cele mai multe cazuri, mai puţin când 
+datele sunt aproape liniar separabile, deci nu ne aşteptăm să performeze
+excepţional.
+
+Totuşi, putem exploata eficienţa kernel-ului liniar folosind tehnica de 
+optimizare \textbf{Stochastic Gradient Descent} (SGD) împreună cu metoda de aproximare 
+\textbf{Nystroem} pentru a aplica o transformare neliniară asupra
+datelor de intrare şi apoi să găsim o margine de decizie liniară în noul spaţiu.
+
+SGD este o metodă iterativă relativ simplă ce nu necesită un număr la fel de 
+mare de calcule şi nici la fel de multă memorie precum metodele clasice 
+de rezolvare a unui sistem de ecuaţii folosind algebră liniară. De aceea, este
+potrivită atunci când mărimea setului de date trece de ordinul sutelor de mii,
+în ciuda faptului că sacrificăm acurateţea ponderilor estimate.
+
+Metoda Nystroem aproximează matricea funcţiei de scufundare pentru un kernel dat,
+în cazul nostru cel Gaussian, folosind tehnica aproximării cu \textbf{matrice de 
+rang scăzut} unde o fracţiune din punctele setului de antrenare este folosită 
+ca bază vectorială pentru kernelul respectiv. Evident, calculul va fi mult mai 
+rapid folosind o matrice de dimensiune redusă. Spre exemplu, am folosit doar 
+\textbf{$0.04\%$} din setul de antrenare cu cardinalul $213,236$ pentru că mai mult nu 
+ar fi avut loc în memoria
+RAM cu capacitate de 32GB, şi timpul de antrenare adunat cu cel de prezicere a 
+fost de sub 10 minute,
+comparativ cu timpul normal dacă foloseam matricea întreagă de minim o oră şi 
+jumătate.
+
+Pentru comparaţie am inclus şi funcţiile \textbf{polinomială} şi 
+\textbf{sigmoidă}, dar nu au obţinut
+rezultate favorabile faţă de kernelul Gaussian pe care îl vom folosi şi care 
+este şi decizia des întâlnită în practică. De asemenea, atât kernel-ul liniar pentru valori mai mari
+ale lui $\nu$, 
+cât şi cel polinomial începând cu gradul 7 nu terminau antrenarea nici măcar 
+după 12 ore, aşa că am abandonat căutarea hiperparametrilor pentru mai mult 
+de atât, mai ales că acurateţea prezicerilor devenea din ce în ce mai îndoielnică.
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X|
+    }
+    \hline
+    $d$ & $\gamma$ & $c$ & $\nu$ & {Accuracy} & {Recall} & {Precision} & {F1 Score} \\
+    \hline
+    \rowcolor{gray!20} 1 & 1.0 & -1 & 0.05 & 0.6148 & 0.3293 & 0.0224 & 0.0419 \\
+    2 & 0.03 & -3 & 0.5 & 0.5805 & 0.2602 & 0.0178 & 0.0334 \\
+    \rowcolor{gray!20} 3 & 0.5 & 0 & 0.3 & 0.4589 & 0.0203 & 0.0014 & 0.0026 \\
+    5 & 0.5 & 0 & 0.1 & 0.4564 & 0.0203 & 0.0013 & 0.0025 \\
+    \hline
+  \end{tabularx}
+  \caption{Cele mai bune rezultate obţinute pentru kernel-ul polinomial}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X|
+    }
+    \hline
+    $\gamma$ & $c$ & $\nu$ & {Accuracy} & {Recall} & {Precision} & {F1 Score} \\
+    \hline
+    \rowcolor{gray!20} 0.03 & 0 & 0.05 & 0.7566 & 0.6179 & 0.0392 & 0.0738 \\
+    0.03 & 0 & 0.3 & 0.8110 & 0.7236 & 0.0470 & 0.0883 \\
+    \rowcolor{gray!20} 0.03 & 0 & 0.5 & 0.7915 & 0.6829 & 0.0452 & 0.0847 \\
+    0.03 & 0 & 0.7 & 0.7627 & 0.6260 & 0.0413 & 0.0775 \\
+    \hline
+  \end{tabularx}
+  \caption{Cele mai bune rezultate obţinute pentru kernel-ul sigmoid}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X|
+    }
+    \hline
+    $\nu$ & {Accuracy} & {Recall} & {Precision} & {F1 Score} \\
+    \hline
+    \rowcolor{gray!20} 0.05 & 0.4515 & 0.0040 & 0.0002 & 0.0005 \\
+    0.1 & 0.4598 & 0.0203 & 0.0013 & 0.0026 \\
+    \hline
+  \end{tabularx}
+  \caption{Cele mai bune rezultate obţinute pentru kernel-ul liniar}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X|
+    }
+    \hline
+    $\gamma$ & $\nu$ & {Accuracy} & {Recall} & {Precision} & {F1 Score} \\
+    \hline
+    \rowcolor{gray!20} 0.2 & 0.5 & 0.7405 & 0.9796 & 0.0134 & 0.0264 \\
+    0.03 & 0.5 & 0.7402 & 0.9837 &  0.0133 &   0.0263 \\
+    \hline
+  \end{tabularx}
+  \caption{Cele mai bune rezultate obţinute pentru kernel-ul liniar cu SGD şi Nystroem}
+\end{table}
+
+Utilizăm kernelul Gaussian, deci printre hiperparametrii optimi pe care îi căutăm 
+se va regăsi şi $\gamma$. Acest parametru influenţează 
+\textbf{aria zonei de influenţă a 
+fiecărui vector suport}. O valoare prea mare ar cauza ca zona să includă numai 
+vectorul suport şi nimic altceva, ceea ce ar duce la o \textbf{varianţă crescută} 
+a modelului. La polul opus, o valoare prea mică ar cauza ca zona sa includă 
+toate punctele din setul de date, ceea ce ar duce la un \textbf{bias crescut}.
+
+Parametrul $\nu$ este similar parametrului $C$ din \textbf{Soft-Margin SVM}, 
+cel din urmă
+fiind creat cu scopul de a rezolva problemele asociate parametrului $C$, anume că 
+putea lua orice valoare pozitivă şi nu avea o interpretare directă. $\nu$ se află 
+în intervalul $\left(0, 1\right]$ şi este interpretat ca marginea superioară a ponderii de anomalii 
+şi marginea inferioară a ponderii de vectori suport. Prin urmare, $\nu$ controlează
+mărimea \textbf{frontierei din jurul datelor normale} a modelului, 
+unde o frontieră mai mică este asociată
+cu o varianţă crescută, în timp ce o frontiera mai mare este asociată cu un bias 
+crescut.
+
+Folosim metoda \textbf{Grid Search} pentru a găsi parametrii favorabili. Valorile aparţin 
+mulţimilor $\gamma \in \{0.03, 0.5, 1.0, 2.0\}$ şi 
+$\nu \in \{0.05, 0.1, 0.3, 0.5, 0.7, 0.9\}$.
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{
+      |X
+      |X
+      |X
+      |X
+      |X
+      |X|
+  }
+  \hline
+  $\gamma$ & $\nu$ & {Accuracy} & {Precision} & {Recall} & {F1 Score} \\
+  \hline
+  \rowcolor{gray!20} 0.03 & 0.05 & 0.9121 & 0.0604 & 0.9228 & 0.1159 \\
+  0.03 & 0.1 & 0.9114 & 0.0602 & 0.9228 & 0.1155 \\
+  \rowcolor{gray!20} 0.03 & 0.3 & 0.9117 & 0.0604 & 0.9228 & 0.1159 \\
+  0.03 & 0.5 & 0.9139 & 0.0608 & 0.9268 & 0.1159 \\
+  \rowcolor{gray!20} 0.03 & 0.7 & 0.9136 & 0.0602 & 0.9268 & 0.1155 \\
+  0.03 & 0.9 & 0.9136 & 0.0602 & 0.9268 & 0.1155 \\
+  \hline
+  \rowcolor{gray!20} 0.5 & 0.05 & 0.7846 & 0.0163 & 0.9756 & 0.0320 \\
+  0.5 & 0.1 & 0.7849 & 0.0164 & 0.9187 & 0.0321 \\
+  \rowcolor{gray!20} 0.5 & 0.3 & 0.8558 & 0.0258 & 0.9634 & 0.0501 \\
+  0.5 & 0.5 & 0.8934 & 0.0375 & 0.9553 & 0.0723 \\
+  \rowcolor{gray!20} 0.5 & 0.7 & 0.8971 & 0.0409 & 0.9512 & 0.0788 \\
+  0.5 & 0.9 & 0.8963 & 0.0402 & 0.9472 & 0.0776 \\
+  \hline
+  \rowcolor{gray!20} 1.0 & 0.05 & 0.6852 & 0.0110 & 0.9878 & 0.0216 \\
+  1.0 & 0.1 & 0.6856 & 0.0109 & 0.9878 & 0.0216 \\
+  \rowcolor{gray!20} 1.0 & 0.3 & 0.6846 & 0.0109 & 0.9878 & 0.0216 \\
+  1.0 & 0.5 & 0.7819 & 0.0161 & 0.9756 & 0.0315 \\
+  \rowcolor{gray!20} 1.0 & 0.7 & 0.8132 & 0.0193 & 0.9675 & 0.0377 \\
+  1.0 & 0.9 & 0.8174 & 0.0198 & 0.9675 & 0.0388 \\
+  \hline
+  \rowcolor{gray!20} 2.0 & 0.05 & 0.6321 & 0.0093 & 0.9959 & 0.0186 \\
+  2.0 & 0.1 & 0.6323 & 0.0093 & 1.0000 & 0.0186 \\
+  \rowcolor{gray!20} 2.0 & 0.2 & 0.6303 & 0.0092 & 1.0000 & 0.0184 \\
+  2.0 & 0.3 & 0.6298 & 0.0092 & 1.0000 & 0.0184 \\
+  \rowcolor{gray!20} 2.0 & 0.5 & 0.7266 & 0.0126 & 0.9919 & 0.0247 \\
+  2.0 & 0.7 & 0.7366 & 0.0130 & 0.9879 & 0.0255 \\
+  \hline
+  \end{tabularx}
+  \caption{Grid Search pentru One Class SVM}
+\end{table}
+
+Se observă că $\gamma$ este parametrul care aduce schimbările drastice în valorile 
+metricilor, pe când $\nu$ doar creşte relativ puţin aceste valori. Accuracy şi f1 score 
+tind să crească simultan, în timp ce precision şi recall tind să aibă valori 
+divergente.
+
+Urmărim accuracy împreună cu f1 score, acestea fiind metricile ce evaluează modelul oarecum 
+echilibrat, în contrast cu precision şi recall care favorează minimizarea fals pozitivelor, 
+respectiv a fals negativelor. Astfel, alegem $\gamma=0.03$ şi $\nu=0.5$ pentru modelul final.
+
+\begin{figure}[p] % Use a separate page for the figure
+    \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth]{images/ocsvm-accuracy.png}
+        \caption{OCSVM Accuracy}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth]{images/ocsvm-precision.png}
+        \caption{OCSVM Precision}
+    \end{minipage}
+    \\
+    \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth]{images/ocsvm-recall.png}
+        \caption{OCSVM Recall}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth]{images/ocsvm-f1-score.png}
+        \caption{OCSVM F1 score}
+    \end{minipage}
+\end{figure}
+
+\noindent
+
+\section{Gaussian Mixture Model}
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{
+      |X
+      |X
+      |X
+      |X
+      |X
+      |X|
+  }
+  \hline
+  $n$ & {Accuracy} & {Precision} & {Recall} & {F1 Score} \\
+  \hline
+  \rowcolor{gray!20} 1 & 0.9097 & 0.0609 & 0.9187 & 0.1143 \\
+  2 & 0.9033 & 0.0595 & 0.9065 & 0.1152 \\
+  \rowcolor{gray!20} 3 & 0.9015 & 0.0582 & 0.9024 & 0.1124 \\
+  4 & 0.8995 & 0.0581 & 0.8984 & 0.1118 \\
+  \rowcolor{gray!20} 5 & 0.8948 & 0.0570 & 0.8902 & 0.1102 \\
+  6 & 0.8933 & 0.0571 & 0.8862 & 0.1099 \\
+  \rowcolor{gray!20} 7 & 0.8995 & 0.0581 & 0.8984 & 0.1118 \\
+  8 & 0.9043 & 0.0604 & 0.9065 & 0.1151 \\
+  \rowcolor{gray!20} 9 & 0.9020 & 0.0593 & 0.9024 & 0.1132 \\
+  10 & 0.9065 & 0.0606 & 0.9102 & 0.1156 \\
+  \rowcolor{gray!20} 11 & 0.9048 & 0.0608 & 0.9065 & 0.1153 \\
+  12 & 0.9019 & 0.0592 & 0.9024 & 0.1129 \\
+  \rowcolor{gray!20} 13 & 0.8937 & 0.0571 & 0.8862 & 0.1099 \\
+  14 & 0.8979 & 0.0592 & 0.8943 & 0.1128 \\
+  \rowcolor{gray!20} 15 & 0.9000 & 0.0592 & 0.8984 & 0.1120 \\
+  16 & 0.8979 & 0.0591 & 0.8943 & 0.1127 \\
+  \rowcolor{gray!20} 17 & 0.9006 & 0.0600 & 0.8984 & 0.1145 \\
+  \hline
+  \end{tabularx}
+  \caption{Performanţa rămâne relativ constantă între diferitele valori}
+\end{table}
+
+
+
+Pentru acest model, hiperparametrul optim 
+căutat este numărul de componente Gaussiene $n$. Vom încerca pe rând fiecare valoare
+din $\{1, 2, 3, \ldots, 16, 17\}$.
+
+Pentru $n=1$ putem afla parametrii foarte eficient folosind 
+\textbf{Maximum Likelihood Estimation}, întrucât problema 
+se reduce la aflarea mediei şi a matricei de 
+covarianţă pentru o distribuţie Gaussiană. 
+
+Pentru $n > 1$ vom folosi \textbf{Expectation Maximization} 
+pentru a găsi parametrii optimi, 
+având în vedere ca numărul de componente este precizat de la început.
+
+Gaussian Mixture Model încearcă să estimeze o distribuţie posibil multimodală 
+folosind mai multe componente Gaussiene. Prin urmare, numărul optim de componente
+ne indică intuitiv numărul de \textbf{moduri} pe care le are distribuţia ce a generat 
+setul de date.
+Se observă că modelul performează destul de bine chiar şi cu o singură componentă. 
+Aceasta ne indică faptul ca distribuţia ce a generat setul de date este 
+similară cu una Gaussiană.
+
+Pentru acest model, toate cele 4 metrici par să evolueze aproximativ la fel, după cum se
+observă şi pe grafice. Valorile cresc şi scad aproape simultan. Totuşi, varianţa rezultatelor
+nu este prea mare, acestea fiind incluse într-un interval restrâns încă de la primele valori, 
+aşa cum am menţionat şi mai sus. Dată simplitatea modelului, rezultatele sunt impresionante.
+
+Alegem \textbf{numărul de componente $n=10$} pentru modelul final, chiar dacă 
+am avut rezultate bune şi cu $n=1$ deoarece ne dorim un model puţin mai complex 
+decât o banală distribuţie Gaussiană. În practică, este o şansă mică să dăm peste 
+un proces care să genereze date fix în acest mod. De asemenea, aici f1 score are valoarea cea mai mare
+şi după aceasta ne vom ghida, având în vedere că ne interesează performanţa modelului 
+per total.
+
+\begin{figure}[H] % Use a separate page for the figure
+    \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth]{images/gmm-accuracy.png}
+        \caption{GMM Accuracy}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth]{images/gmm-precision.png}
+        \caption{GMM Precision}
+    \end{minipage}
+    \\
+    \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth]{images/gmm-recall.png}
+        \caption{GMM Recall}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth]{images/gmm-f1-score.png}
+        \caption{GMM F1 score}
+    \end{minipage}
+\end{figure}
+
+\noindent
+  
+
+\section{Kernel Density Estimation}
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{
+      |X
+      |X
+      |X
+      |X
+      |X
+      |X|
+  }
+  \hline
+  $Bandwidth$ & {Accuracy} & {Precision} & {Recall} & {F1 Score} \\
+  \hline
+  \rowcolor{gray!20} 0.5 & 0.7379 & 0.0131 & 0.9879 & 0.0256 \\
+  1.0 & 0.8973 & 0.0412 & 0.9476 & 0.0795 \\
+  \rowcolor{gray!20} 5.0 & 0.9131 & 0.0605 & 0.9268 & 0.1156 \\
+  5.5 & 0.9131 & 0.0600 & 0.9268 & 0.1151 \\
+  \rowcolor{gray!20} 6.0 & 0.9131 & 0.0600 & 0.9268 & 0.1151 \\
+  7.0 & 0.9131 & 0.0600 & 0.9268 & 0.1151 \\
+  \rowcolor{gray!20} 8.0 & 0.9131 & 0.0600 & 0.9268 & 0.1151 \\
+  9.0 & 0.9131 & 0.0600 & 0.9268 & 0.1151 \\
+  \rowcolor{gray!20} 10.0 & 0.9131 & 0.0600 & 0.9268 & 0.1151 \\
+  \hline
+  \end{tabularx}
+  \caption{Performanța creşte cu valoare lăţimii de bandă}
+\end{table}
+
+Folosim \textbf{kernelul Gaussian}, fiind cel mai des întâlnit în practică
+datorită numeroaselor proprietăţi utile pe care le deţine.
+
+Lăţimea de bandă este cea care stă la baza \textbf{bias-variance tradeoff} 
+în acest model.
+Valorile prea mici implică \textbf{variance} mare, întrucât aria de sub grafic 
+pentru fiecare punct este influenţată doar de punctele foarte apropiate de el, 
+fapt ce duce la o distribuţie cu mulţi "ţepi". 
+În schimb, valorile prea mari implică \textbf{bias} mare pentru că acum şi punctele 
+aflate la distanţă mare joacă un rol important. În cel mai rău caz, o distribuţie 
+multimodală ajunge sa fie estimată ca una unimodală din cauza netezimii graficului.
+
+La fel ca în cazul One Class SVM, precision şi recall evoluează puternic
+divergent, după cum reiese şi din grafice, în timp ce accuracy şi f1 score cresc în acelaşi 
+ritm. Recall are valori foarte mari, dar precision are valori foarte mici, ceea ce ne indică
+un număr enorm de fals pozitive, dar un număr modest de fals negative.
+Se observă că după $5.0$, valoarea lăţimii de banda nu mai aduce îmbunătăţiri 
+semnificative. Acest lucru este ilustrat pe grafic sub forma unui plafon al funcţiei.
+
+Alegem \textbf{lăţimea de bandă} $bandwidth=5.0$ pentru modelul final deoarece are cele mai bune 
+valori pentru accuracy şi f1 score. De asemenea, aceasta este şi cea mai mică valoare 
+care aduce o performanţă decentă. O valoare prea mare a lăţimii de banda duce 
+la o netezire excesivă a particularităţilor distribuţiei.
+
+\begin{figure}[p] % Use a separate page for the figure
+    \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth]{images/kde-accuracy.png}
+        \caption{KDE Accuracy}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth]{images/kde-precision.png}
+        \caption{KDE Precision}
+    \end{minipage}
+    \\
+    \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth]{images/kde-recall.png}
+        \caption{KDE Recall}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.5\textwidth}
+        \vspace{0pt}
+        \includegraphics[width=\textwidth]{images/kde-f1-score.png}
+        \caption{KDE F1 score}
+    \end{minipage}
+\end{figure}
+
+\noindent
+
+\section{SVM Supervizat}
+
+Pentru a profita de faptul că avem la dispoziţie etichetele datelor, vom trata 
+problema şi din punct de vedere supervizat. Gaussian Mixture Model şi Kernel 
+Density Estimation nu pot fi aplicate decât într-un mediu nesupervizat, aşa 
+că vom antrena doar SVM-ul, dar de data aceasta pentru clasificare binară.
+Astfel, putem observa performanţa algoritmilor prezentaţi anterior şi faţă 
+de un algoritm supervizat care are de rezolvat o problemă relativ mai uşoară.
+
+O modificare pe care o vom face la modul de împărţire al setului de date 
+este că de această dată stratificarea este luată în calcul, aşa că păstrăm 
+ponderile claselor aproximativ la fel în toate cele 3 partiţii.
+
+Şi aici, kernel-ul Gaussian este cel care oferă cele mai bune rezultate cu 
+valori scăzute pentru $\gamma$, similar cu cazul OCSVM, dar parametrul 
+$\nu$ este înlocuit
+de parametrul $C$ care are rolul de regularizare în SVM-ul Soft-Margin.
+
+Se observă o creştere substanţială a valorilor metricilor atunci când tratăm 
+problema în mod supervizat, \textbf{F1 Score} 
+depăşind 0.87 pe setul de validare, în timp ce 
+OCSVM pe setul de validare abia atingea 0.12.
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X|
+    }
+    \hline
+    $\gamma$ & $C$ & {Accuracy} & {Recall} & {Precision} & {F1 Score} \\
+    \hline
+    \rowcolor{gray!20} 0.01 & 0.1 & 0.7972 & 0.5946 & 0.8302 & 0.6929 \\
+    0.01 & 0.5 & 0.9053 & 0.8108 & 0.8571 & 0.8333 \\
+    \rowcolor{gray!20} 0.01 & 1.0 & 0.9053 & 0.8108 & 0.8824 & 0.8451 \\
+    0.01 & 2.0 & 0.9053 & 0.8108 & 0.8955 & 0.8511 \\
+    \rowcolor{gray!20} 0.01 & 3.0 & 0.9054 & 0.8108 & 0.9375 & 0.8696 \\
+    0.01 & 4.0 & 0.9054 & 0.8108 & 0.9524 & 0.8759 \\
+    \rowcolor{gray!20} 0.02 & 0.1 & 0.7094 & 0.4189 & 0.7750 & 0.5439 \\
+    0.02 & 0.5 & 0.8850 & 0.7703 & 0.8769 & 0.8201 \\
+    \rowcolor{gray!20} 0.02 & 1.0 & 0.8918 & 0.7838 & 0.9355 & 0.8529 \\
+    0.02 & 2.0 & 0.8919 & 0.7838 & 0.9508 & 0.8593 \\
+    \rowcolor{gray!20} 0.02 & 3.0 & 0.8919 & 0.7838 & 0.9508 & 0.8593 \\
+    0.02 & 4.0 & 0.8919 & 0.7838 & 0.9667 & 0.8657 \\
+    \rowcolor{gray!20} 0.03 & 0.1 & 0.6148 & 0.2297 & 0.8947 & 0.3656 \\
+    0.03 & 0.5 & 0.8243 & 0.6486 & 0.9412 & 0.7680 \\
+    \rowcolor{gray!20} 0.03 & 1.0 & 0.8783 & 0.7568 & 0.9492 & 0.8421 \\
+    0.03 & 2.0 & 0.8851 & 0.7703 & 0.9661 & 0.8571 \\
+    \rowcolor{gray!20} 0.03 & 3.0 & 0.8851 & 0.7703 & 0.9661 & 0.8571 \\
+    0.03 & 4.0 & 0.8851 & 0.7703 & 0.9661 & 0.8571 \\
+    \hline
+    \end{tabularx}
+    \caption{Grid Search pentru SVM}
+\end{table}
+  
