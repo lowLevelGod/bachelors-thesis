@@ -10,7 +10,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.kernel_approximation import Nystroem
 from sklearn.linear_model import SGDOneClassSVM
 from sklearn import pipeline
-from sklearn.model_selection import GridSearchCV
+from joblib import Parallel, delayed
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, precision_recall_curve, roc_curve, auc
 
 # %%
@@ -61,7 +61,29 @@ val_data = scaler.transform(val_data)
 test_data = scaler.transform(test_data)
 
 # %%
-df = pd.DataFrame(
+def train_ocsvm_rbf(g, n):
+    ocsvm = OneClassSVM(kernel='rbf', gamma=g, nu=n)
+    ocsvm.fit(train_data)
+    val_predictions = ocsvm.predict(val_data)
+    val_predictions[val_predictions == 1] = 0
+    val_predictions[val_predictions == -1] = 1
+    conf_mat = confusion_matrix(val_labels, val_predictions)
+    tn = conf_mat[0][0]
+    tp = conf_mat[1][1]
+    fp = conf_mat[0][1]
+    fn = conf_mat[1][0]
+    accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
+    recall = recall_score(val_labels, val_predictions)
+    precision = precision_score(val_labels, val_predictions)
+    f1 = f1_score(val_labels, val_predictions)
+    
+    return (g, n, accuracy, recall, precision, f1)
+    
+results_ocsvm_rbf = Parallel(n_jobs=-1)(
+    delayed(train_ocsvm_rbf)(g, n) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9]
+)       
+
+df_ocsvm_rbf = pd.DataFrame(
     {"gamma": [],
     "nu": [],
     "accuracy": [],
@@ -71,39 +93,44 @@ df = pd.DataFrame(
     dtype=object
 )
 
-for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0]:
-    for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9 ]:
-        ocsvm = OneClassSVM(kernel='rbf', gamma=g, nu=n)
-        ocsvm.fit(train_data)
-        val_predictions = ocsvm.predict(val_data)
-        val_predictions[val_predictions == 1] = 0
-        val_predictions[val_predictions == -1] = 1
-        conf_mat = confusion_matrix(val_labels, val_predictions)
-        tn = conf_mat[0][0]
-        tp = conf_mat[1][1]
-        fp = conf_mat[0][1]
-        fn = conf_mat[1][0]
-        accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
-        recall = recall_score(val_labels, val_predictions)
-        precision = precision_score(val_labels, val_predictions)
-        f1 = f1_score(val_labels, val_predictions)
-        
-        df = pd.concat([df, pd.DataFrame( 
-            {"gamma": [g],
-            "nu": [n],
-            "accuracy": [accuracy],
-            "recall" : [recall],
-            "precision" : [precision],
-            "f1" : [f1]},
-        dtype=object
-        )], 
-            ignore_index=True)
-        
-        df.to_csv("ocsvm-rbf.csv", index=False)
-        
+for (g, n, accuracy, recall, precision, f1) in results_ocsvm_rbf:
+    df_ocsvm_rbf = pd.concat([df_ocsvm_rbf, pd.DataFrame( 
+        {"gamma": [g],
+        "nu": [n],
+        "accuracy": [accuracy],
+        "recall" : [recall],
+        "precision" : [precision],
+        "f1" : [f1]},
+    dtype=object
+    )], 
+        ignore_index=True)
+
+    df_ocsvm_rbf.to_csv("ocsvm-rbf.csv", index=False)
 
 # %%
-df = pd.DataFrame(
+def train_ocsvm_poly(d, g, n):
+    ocsvm = OneClassSVM(kernel='poly', degree=d, gamma=g, nu=n)
+    ocsvm.fit(train_data)
+    val_predictions = ocsvm.predict(val_data)
+    val_predictions[val_predictions == 1] = 0
+    val_predictions[val_predictions == -1] = 1
+    conf_mat = confusion_matrix(val_labels, val_predictions)
+    tn = conf_mat[0][0]
+    tp = conf_mat[1][1]
+    fp = conf_mat[0][1]
+    fn = conf_mat[1][0]
+    accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
+    recall = recall_score(val_labels, val_predictions)
+    precision = precision_score(val_labels, val_predictions)
+    f1 = f1_score(val_labels, val_predictions)
+    
+    return (d, g, n, accuracy, recall, precision, f1)
+    
+results_ocsvm_poly = Parallel(n_jobs=-1)(
+    delayed(train_ocsvm_poly)(d, g, n) for d in range(1, 12, 1) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9]
+)       
+
+df_ocsvm_poly = pd.DataFrame(
     {"degree": [],
     "gamma": [],
     "nu": [],
@@ -115,69 +142,10 @@ df = pd.DataFrame(
 )
 
 
-for d in range(1, 12, 1):
-    for g in [0.03, 0.5, 1.0, 2.0]:
-        for n in [0.05, 0.1, 0.3, 0.5, 0.7, 0.9]:            
-            ocsvm = OneClassSVM(kernel='poly', degree=d, gamma=g, nu=n)
-            ocsvm.fit(train_data)
-            val_predictions = ocsvm.predict(val_data)
-            val_predictions[val_predictions == 1] = 0
-            val_predictions[val_predictions == -1] = 1
-            conf_mat = confusion_matrix(val_labels, val_predictions)
-            tn = conf_mat[0][0]
-            tp = conf_mat[1][1]
-            fp = conf_mat[0][1]
-            fn = conf_mat[1][0]
-            accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
-            recall = recall_score(val_labels, val_predictions)
-            precision = precision_score(val_labels, val_predictions)
-            f1 = f1_score(val_labels, val_predictions)
-
-            df = pd.concat([df, pd.DataFrame( 
-                {"degree": [d],
-                "gamma": [g],
-                "nu": [n],
-                "accuracy": [accuracy],
-                "recall" : [recall],
-                "precision" : [precision],
-                "f1" : [f1]},
-            dtype=object
-            )], 
-                ignore_index=True)
-
-            df.to_csv("ocsvm-poly.csv", index=False)
-
-
-# %%
-df = pd.DataFrame(
-    {"gamma": [],
-    "nu": [],
-    "accuracy": [],
-    "recall" : [],
-    "precision" : [],
-    "f1" : []},
-    dtype=object
-)
-
-for g in [0.03, 0.5, 1.0, 2.0]:
-    for n in [0.05, 0.1, 0.3, 0.5, 0.7, 0.9]:    
-        ocsvm = OneClassSVM(kernel='sigmoid',gamma=g, nu=n)
-        ocsvm.fit(train_data)
-        val_predictions = ocsvm.predict(val_data)
-        val_predictions[val_predictions == 1] = 0
-        val_predictions[val_predictions == -1] = 1
-        conf_mat = confusion_matrix(val_labels, val_predictions)
-        tn = conf_mat[0][0]
-        tp = conf_mat[1][1]
-        fp = conf_mat[0][1]
-        fn = conf_mat[1][0]
-        accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
-        recall = recall_score(val_labels, val_predictions)
-        precision = precision_score(val_labels, val_predictions)
-        f1 = f1_score(val_labels, val_predictions)
-
-        df = pd.concat([df, pd.DataFrame( 
-            {"gamma": [g],
+for (d, g, n, accuracy, recall, precision, f1) in results_ocsvm_poly:
+    df_ocsvm_poly = pd.concat([df_ocsvm_poly, pd.DataFrame( 
+            {"degree": [d],
+            "gamma": [g],
             "nu": [n],
             "accuracy": [accuracy],
             "recall" : [recall],
@@ -187,12 +155,33 @@ for g in [0.03, 0.5, 1.0, 2.0]:
         )], 
             ignore_index=True)
 
-        df.to_csv("ocsvm-sigmoid.csv", index=False)
-
+    df_ocsvm_poly.to_csv("ocsvm-poly.csv", index=False)
 
 # %%
-df = pd.DataFrame(
-    {
+def train_ocsvm_sigmoid(g, n):
+    ocsvm = OneClassSVM(kernel='sigmoid',gamma=g, nu=n)
+    ocsvm.fit(train_data)
+    val_predictions = ocsvm.predict(val_data)
+    val_predictions[val_predictions == 1] = 0
+    val_predictions[val_predictions == -1] = 1
+    conf_mat = confusion_matrix(val_labels, val_predictions)
+    tn = conf_mat[0][0]
+    tp = conf_mat[1][1]
+    fp = conf_mat[0][1]
+    fn = conf_mat[1][0]
+    accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
+    recall = recall_score(val_labels, val_predictions)
+    precision = precision_score(val_labels, val_predictions)
+    f1 = f1_score(val_labels, val_predictions)
+    
+    return (g, n, accuracy, recall, precision, f1)
+    
+results_ocsvm_sigmoid = Parallel(n_jobs=-1)(
+    delayed(train_ocsvm_sigmoid)(g, n) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9]
+)       
+
+df_ocsvm_sigmoid = pd.DataFrame(
+    {"gamma": [],
     "nu": [],
     "accuracy": [],
     "recall" : [],
@@ -201,7 +190,23 @@ df = pd.DataFrame(
     dtype=object
 )
 
-for n in [0.05, 0.1, 0.3, 0.5, 0.7, 0.9]:    
+for (g, n, accuracy, recall, precision, f1) in results_ocsvm_sigmoid:
+    df_ocsvm_sigmoid = pd.concat([df_ocsvm_sigmoid, pd.DataFrame( 
+        {"gamma": [g],
+        "nu": [n],
+        "accuracy": [accuracy],
+        "recall" : [recall],
+        "precision" : [precision],
+        "f1" : [f1]},
+    dtype=object
+    )], 
+        ignore_index=True)
+
+    df_ocsvm_sigmoid.to_csv("ocsvm-sigmoid.csv", index=False)
+
+
+# %%
+def train_ocsvm_linear(n):
     ocsvm = OneClassSVM(kernel='linear',  nu=n)
     ocsvm.fit(train_data)
     val_predictions = ocsvm.predict(val_data)
@@ -216,8 +221,25 @@ for n in [0.05, 0.1, 0.3, 0.5, 0.7, 0.9]:
     recall = recall_score(val_labels, val_predictions)
     precision = precision_score(val_labels, val_predictions)
     f1 = f1_score(val_labels, val_predictions)
+    
+    return (n, accuracy, recall, precision, f1)
+    
+results_ocsvm_linear = Parallel(n_jobs=-1)(
+    delayed(train_ocsvm_linear)(n) for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9]
+)       
 
-    df = pd.concat([df, pd.DataFrame( 
+df_ocsvm_linear = pd.DataFrame(
+    {
+    "nu": [],
+    "accuracy": [],
+    "recall" : [],
+    "precision" : [],
+    "f1" : []},
+    dtype=object
+)
+
+for (n, accuracy, recall, precision, f1) in results_ocsvm_linear:
+    df_ocsvm_linear = pd.concat([df_ocsvm_linear, pd.DataFrame( 
         {
         "nu": [n],
         "accuracy": [accuracy],
@@ -228,13 +250,43 @@ for n in [0.05, 0.1, 0.3, 0.5, 0.7, 0.9]:
     )], 
         ignore_index=True)
 
-    df.to_csv("ocsvm-linear.csv", index=False)
-
+    df_ocsvm_linear.to_csv("ocsvm-linear.csv", index=False)
 
 # %%
 from sklearn.mixture import GaussianMixture
 
-df = pd.DataFrame(
+def train_gmm(n, q):
+    gmm = GaussianMixture(n_components=n, max_iter=10 ** 5, tol=10 ** -5, random_state=42)
+    gmm.fit(train_data)
+    
+    scores = gmm.score_samples(val_data)
+    threshold = np.quantile(scores, q)
+    
+    idxAnomaly = np.where(scores <= threshold)
+    idxNormal = np.where(scores > threshold)
+    
+    val_predictions = scores
+    
+    val_predictions[idxAnomaly] = 1
+    val_predictions[idxNormal] = 0
+    
+    conf_mat = confusion_matrix(val_labels, val_predictions)
+    tn = conf_mat[0][0]
+    tp = conf_mat[1][1]
+    fp = conf_mat[0][1]
+    fn = conf_mat[1][0]
+    accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
+    recall = recall_score(val_labels, val_predictions)
+    precision = precision_score(val_labels, val_predictions)
+    f1 = f1_score(val_labels, val_predictions)
+    
+    return (n, q, accuracy, recall, precision, f1)
+
+results_gmm = Parallel(n_jobs=-1)(
+    delayed(train_gmm)(n, q) for n in range(1, 21) for q in [10 ** -4, 10 ** -3, 10 ** -2, 10 ** -1]
+)       
+
+df_gmm = pd.DataFrame(
     {"components": [],
     "quantile": [],
     "accuracy": [],
@@ -244,51 +296,55 @@ df = pd.DataFrame(
     dtype=object
 )
 
-for n in [i for i in range(1, 21)]:
-    for q in [10 ** -4, 10 ** -3, 10 ** -2, 10 ** -1]:
-        gmm = GaussianMixture(n_components=n, max_iter=10 ** 5, tol=10 ** -5, random_state=42)
-        gmm.fit(train_data)
-        
-        scores = gmm.score_samples(val_data)
-        threshold = np.quantile(scores, q)
-        
-        idxAnomaly = np.where(scores <= threshold)
-        idxNormal = np.where(scores > threshold)
-        
-        val_predictions = scores
-        
-        val_predictions[idxAnomaly] = 1
-        val_predictions[idxNormal] = 0
-        
-        conf_mat = confusion_matrix(val_labels, val_predictions)
-        tn = conf_mat[0][0]
-        tp = conf_mat[1][1]
-        fp = conf_mat[0][1]
-        fn = conf_mat[1][0]
-        accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
-        recall = recall_score(val_labels, val_predictions)
-        precision = precision_score(val_labels, val_predictions)
-        f1 = f1_score(val_labels, val_predictions)
-        
-        df = pd.concat([df, pd.DataFrame( 
-            {"components": [n],
-            "quantile": [q],
-            "accuracy": [accuracy],
-            "recall" : [recall],
-            "precision" : [precision],
-            "f1" : [f1]},
-        dtype=object
-        )], 
-            ignore_index=True)
-        
-        df.to_csv("gmm.csv", index=False)
-
-
+for (n, q, accuracy, recall, precision, f1) in results_gmm:
+    df_gmm = pd.concat([df_gmm, pd.DataFrame( 
+        {"components": [n],
+        "quantile": [q],
+        "accuracy": [accuracy],
+        "recall" : [recall],
+        "precision" : [precision],
+        "f1" : [f1]},
+    dtype=object
+    )], 
+        ignore_index=True)
+    
+    df_gmm.to_csv("gmm.csv", index=False)
 
 # %%
 from sklearn.neighbors import KernelDensity
 
-df = pd.DataFrame(
+def train_kde(k, b, q):
+    kde = KernelDensity(kernel=k, bandwidth=b)
+    kde.fit(train_data)
+
+    scores = kde.score_samples(val_data)
+    threshold = np.quantile(scores, q)
+
+    idxAnomaly = np.where(scores <= threshold)
+    idxNormal = np.where(scores > threshold)
+
+    val_predictions = scores
+
+    val_predictions[idxAnomaly] = 1
+    val_predictions[idxNormal] = 0
+
+    conf_mat = confusion_matrix(val_labels, val_predictions)
+    tn = conf_mat[0][0]
+    tp = conf_mat[1][1]
+    fp = conf_mat[0][1]
+    fn = conf_mat[1][0]
+    accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
+    recall = recall_score(val_labels, val_predictions)
+    precision = precision_score(val_labels, val_predictions)
+    f1 = f1_score(val_labels, val_predictions)
+    
+    return (k, b, q, accuracy, recall, precision, f1)
+
+results_kde = Parallel(n_jobs=-1)(
+    delayed(train_kde)(k, b, q) for k in ['gaussian', 'tophat', 'epanechnikov', 'exponential', 'linear', 'cosine'] for b in [0.5, 1.0, 5.0, 5.5, 6.0, 7.0, 8.0, 9.0] for q in [10 ** -4, 10 ** -3, 10 ** -2, 10 ** -1]
+)       
+
+df_kde = pd.DataFrame(
     {"kernel": [],
     "bandwidth": [],
     "quantile": [],
@@ -299,54 +355,59 @@ df = pd.DataFrame(
     dtype=object
 )
 
-for k in ['gaussian', 'tophat', 'epanechnikov', 'exponential', 'linear', 'cosine']:
-    for b in [0.5, 1.0, 5.0, 5.5, 6.0, 7.0, 8.0, 9.0]:
-        for q in [10 ** -4, 10 ** -3, 10 ** -2, 10 ** -1]:
-            kde = KernelDensity(kernel=k, bandwidth=b)
-            kde.fit(train_data)
+for (k, b, q, accuracy, recall, precision, f1) in results_kde:
+    df_kde = pd.concat([df_kde, pd.DataFrame( 
+        {"kernel": [k],
+        "bandwidth": [b],
+        "quantile": [q],
+        "accuracy": [accuracy],
+        "recall" : [recall],
+        "precision" : [precision],
+        "f1" : [f1]},
+    dtype=object
+    )], 
+        ignore_index=True)
 
-            scores = kde.score_samples(val_data)
-            threshold = np.quantile(scores, q)
-
-            idxAnomaly = np.where(scores <= threshold)
-            idxNormal = np.where(scores > threshold)
-
-            val_predictions = scores
-
-            val_predictions[idxAnomaly] = 1
-            val_predictions[idxNormal] = 0
-
-            conf_mat = confusion_matrix(val_labels, val_predictions)
-            tn = conf_mat[0][0]
-            tp = conf_mat[1][1]
-            fp = conf_mat[0][1]
-            fn = conf_mat[1][0]
-            accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
-            recall = recall_score(val_labels, val_predictions)
-            precision = precision_score(val_labels, val_predictions)
-            f1 = f1_score(val_labels, val_predictions)
-
-            df = pd.concat([df, pd.DataFrame( 
-                {"kernel": [k],
-                "bandwidth": [b],
-                "quantile": [q],
-                "accuracy": [accuracy],
-                "recall" : [recall],
-                "precision" : [precision],
-                "f1" : [f1]},
-            dtype=object
-            )], 
-                ignore_index=True)
-
-            df.to_csv("kde.csv", index=False)
+    df_kde.to_csv("kde.csv", index=False)
 
 
 # %%
 from sklearn import linear_model
 from sklearn.kernel_approximation import Nystroem
 
+def train_nystroem_rbf(g, n):
+    feature_map_nystroem = Nystroem(kernel='rbf',
+                                    gamma=g,
+                                random_state=42,
+                            n_components=int(n * len(train_data)))
 
-df = pd.DataFrame(
+    nystroem_approx_svm = pipeline.Pipeline([("feature_map", feature_map_nystroem),
+                                            ("svm", linear_model.SGDOneClassSVM(random_state=42))])
+
+
+    nystroem_approx_svm.fit(train_data)
+
+    val_predictions = nystroem_approx_svm.predict(val_data)
+
+    val_predictions[val_predictions == 1] = 0
+    val_predictions[val_predictions == -1] = 1
+    conf_mat = confusion_matrix(val_labels, val_predictions)
+    tn = conf_mat[0][0]
+    tp = conf_mat[1][1]
+    fp = conf_mat[0][1]
+    fn = conf_mat[1][0]
+    accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
+    recall = recall_score(val_labels, val_predictions)
+    precision = precision_score(val_labels, val_predictions)
+    f1 = f1_score(val_labels, val_predictions)
+    
+    return (g, n, accuracy, recall, precision, f1)
+
+results_nystroem_rbf = Parallel(n_jobs=-1)(
+    delayed(train_nystroem_rbf)(g, n) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 10 ** -2, 4 * 10 ** -2, 5 * 10 ** -2, 10 ** -1, 3 * 10 ** -1]
+)       
+
+df_nystroem_rbf = pd.DataFrame(
     {"gamma": [],
     "components_percent": [],
     "accuracy": [],
@@ -356,50 +417,57 @@ df = pd.DataFrame(
     dtype=object
 )
 
-for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0]:
-    for n in [10 ** -4, 10 ** -3, 10 ** -2, 4 * 10 ** -2, 5 * 10 ** -2, 10 ** -1, 3 * 10 ** -1]:
-        feature_map_nystroem = Nystroem(kernel='rbf',
-                                        gamma=g,
-                                 random_state=42,
-                                n_components=int(n * len(train_data)))
-
-        nystroem_approx_svm = pipeline.Pipeline([("feature_map", feature_map_nystroem),
-                                                ("svm", linear_model.SGDOneClassSVM(random_state=42))])
-
-
-        nystroem_approx_svm.fit(train_data)
-
-        val_predictions = nystroem_approx_svm.predict(val_data)
+for (g, n, accuracy, recall, precision, f1) in results_nystroem_rbf:
+    df_nystroem_rbf = pd.concat([df_nystroem_rbf, pd.DataFrame( 
+        {"gamma": [g],
+        "components_percent": [n],
+        "accuracy": [accuracy],
+        "recall" : [recall],
+        "precision" : [precision],
+        "f1" : [f1]},
+    dtype=object
+    )], 
+        ignore_index=True)
     
-        val_predictions[val_predictions == 1] = 0
-        val_predictions[val_predictions == -1] = 1
-        conf_mat = confusion_matrix(val_labels, val_predictions)
-        tn = conf_mat[0][0]
-        tp = conf_mat[1][1]
-        fp = conf_mat[0][1]
-        fn = conf_mat[1][0]
-        accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
-        recall = recall_score(val_labels, val_predictions)
-        precision = precision_score(val_labels, val_predictions)
-        f1 = f1_score(val_labels, val_predictions)
-        
-        df = pd.concat([df, pd.DataFrame( 
-            {"gamma": [g],
-            "components_percent": [n],
-            "accuracy": [accuracy],
-            "recall" : [recall],
-            "precision" : [precision],
-            "f1" : [f1]},
-        dtype=object
-        )], 
-            ignore_index=True)
-        print(n)
-        df.to_csv("nystroem-rbf.csv", index=False)
-        
-
+    df_nystroem_rbf.to_csv("nystroem-rbf.csv", index=False)
+    
 # %%
 
-df = pd.DataFrame(
+def train_nystroem_poly(d, g, n):
+    feature_map_nystroem = Nystroem(kernel='poly',
+                                            gamma=g,
+                                            degree=d,
+                                     random_state=42,
+                                    n_components=int(n * len(train_data)))
+
+    nystroem_approx_svm = pipeline.Pipeline([("feature_map", feature_map_nystroem),
+                                            ("svm", linear_model.SGDOneClassSVM(random_state=42))])
+
+
+    nystroem_approx_svm.fit(train_data)
+
+    val_predictions = nystroem_approx_svm.predict(val_data)
+
+    val_predictions[val_predictions == 1] = 0
+    val_predictions[val_predictions == -1] = 1
+    conf_mat = confusion_matrix(val_labels, val_predictions)
+    tn = conf_mat[0][0]
+    tp = conf_mat[1][1]
+    fp = conf_mat[0][1]
+    fn = conf_mat[1][0]
+    accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
+    recall = recall_score(val_labels, val_predictions)
+    precision = precision_score(val_labels, val_predictions)
+    f1 = f1_score(val_labels, val_predictions)
+
+    
+    return (d, g, n, accuracy, recall, precision, f1)
+
+results_nystroem_poly = Parallel(n_jobs=-1)(
+    delayed(train_nystroem_poly)(d, g, n) for d in range(1, 12, 1) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 10 ** -2, 4 * 10 ** -2, 5 * 10 ** -2, 10 ** -1, 3 * 10 ** -1]
+)       
+
+df_nystroem_poly = pd.DataFrame(
     {"degree": [],
     "gamma": [],
     "components_percent": [],
@@ -410,54 +478,58 @@ df = pd.DataFrame(
     dtype=object
 )
 
-for d in range(1, 12, 1):
-    for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0]:
-        for n in [10 ** -4, 10 ** -3, 10 ** -2, 4 * 10 ** -2, 5 * 10 ** -2, 10 ** -1, 3 * 10 ** -1]:
-            feature_map_nystroem = Nystroem(kernel='poly',
-                                            gamma=g,
-                                            degree=d,
-                                     random_state=42,
-                                    n_components=int(n * len(train_data)))
 
-            nystroem_approx_svm = pipeline.Pipeline([("feature_map", feature_map_nystroem),
-                                                    ("svm", linear_model.SGDOneClassSVM(random_state=42))])
+for (d, g, n, accuracy, recall, precision, f1) in results_nystroem_poly:
+    df_nystroem_poly = pd.concat([df_nystroem_poly, pd.DataFrame( 
+            {"degree": [d],
+            "gamma": [g],
+            "components_percent": [n],
+            "accuracy": [accuracy],
+            "recall" : [recall],
+            "precision" : [precision],
+            "f1" : [f1]},
+        dtype=object
+        )], 
+            ignore_index=True)
 
-
-            nystroem_approx_svm.fit(train_data)
-
-            val_predictions = nystroem_approx_svm.predict(val_data)
-
-            val_predictions[val_predictions == 1] = 0
-            val_predictions[val_predictions == -1] = 1
-            conf_mat = confusion_matrix(val_labels, val_predictions)
-            tn = conf_mat[0][0]
-            tp = conf_mat[1][1]
-            fp = conf_mat[0][1]
-            fn = conf_mat[1][0]
-            accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
-            recall = recall_score(val_labels, val_predictions)
-            precision = precision_score(val_labels, val_predictions)
-            f1 = f1_score(val_labels, val_predictions)
-
-            df = pd.concat([df, pd.DataFrame( 
-                {"degree": [d],
-                "gamma": [g],
-                "components_percent": [n],
-                "accuracy": [accuracy],
-                "recall" : [recall],
-                "precision" : [precision],
-                "f1" : [f1]},
-            dtype=object
-            )], 
-                ignore_index=True)
-
-            df.to_csv("nystroem-poly.csv", index=False)
-
+    df_nystroem_poly.to_csv("nystroem-poly.csv", index=False)
 
 # %%
 
+def train_nystroem_sigmoid(g, n):
+    feature_map_nystroem = Nystroem(kernel='sigmoid',
+                                    gamma=g,
+                                random_state=42,
+                            n_components=int(n * len(train_data)))
 
-df = pd.DataFrame(
+    nystroem_approx_svm = pipeline.Pipeline([("feature_map", feature_map_nystroem),
+                                            ("svm", linear_model.SGDOneClassSVM(random_state=42))])
+
+
+    nystroem_approx_svm.fit(train_data)
+
+    val_predictions = nystroem_approx_svm.predict(val_data)
+
+    val_predictions[val_predictions == 1] = 0
+    val_predictions[val_predictions == -1] = 1
+    conf_mat = confusion_matrix(val_labels, val_predictions)
+    tn = conf_mat[0][0]
+    tp = conf_mat[1][1]
+    fp = conf_mat[0][1]
+    fn = conf_mat[1][0]
+    accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
+    recall = recall_score(val_labels, val_predictions)
+    precision = precision_score(val_labels, val_predictions)
+    f1 = f1_score(val_labels, val_predictions)
+        
+    
+    return (g, n, accuracy, recall, precision, f1)
+
+results_nystroem_sigmoid = Parallel(n_jobs=-1)(
+    delayed(train_nystroem_sigmoid)(g, n) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 10 ** -2, 4 * 10 ** -2, 5 * 10 ** -2, 10 ** -1, 3 * 10 ** -1]
+)       
+
+df_nystroem_sigmoid = pd.DataFrame(
     {"gamma": [],
     "components_percent": [],
     "accuracy": [],
@@ -467,45 +539,19 @@ df = pd.DataFrame(
     dtype=object
 )
 
-for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0]:
-    for n in [10 ** -4, 10 ** -3, 10 ** -2, 4 * 10 ** -2, 5 * 10 ** -2, 10 ** -1, 3 * 10 ** -1]:
-        feature_map_nystroem = Nystroem(kernel='sigmoid',
-                                        gamma=g,
-                                 random_state=42,
-                                n_components=int(n * len(train_data)))
-
-        nystroem_approx_svm = pipeline.Pipeline([("feature_map", feature_map_nystroem),
-                                                ("svm", linear_model.SGDOneClassSVM(random_state=42))])
-
-
-        nystroem_approx_svm.fit(train_data)
-
-        val_predictions = nystroem_approx_svm.predict(val_data)
+for (g, n, accuracy, recall, precision, f1) in results_nystroem_sigmoid:
+    df_nystroem_sigmoid = pd.concat([df_nystroem_sigmoid, pd.DataFrame( 
+        {"gamma": [g],
+        "components_percent": [n],
+        "accuracy": [accuracy],
+        "recall" : [recall],
+        "precision" : [precision],
+        "f1" : [f1]},
+    dtype=object
+    )], 
+        ignore_index=True)
     
-        val_predictions[val_predictions == 1] = 0
-        val_predictions[val_predictions == -1] = 1
-        conf_mat = confusion_matrix(val_labels, val_predictions)
-        tn = conf_mat[0][0]
-        tp = conf_mat[1][1]
-        fp = conf_mat[0][1]
-        fn = conf_mat[1][0]
-        accuracy = ((tp / (tp + fn)) + (tn / (tn + fp))) / 2
-        recall = recall_score(val_labels, val_predictions)
-        precision = precision_score(val_labels, val_predictions)
-        f1 = f1_score(val_labels, val_predictions)
-        
-        df = pd.concat([df, pd.DataFrame( 
-            {"gamma": [g],
-            "components_percent": [n],
-            "accuracy": [accuracy],
-            "recall" : [recall],
-            "precision" : [precision],
-            "f1" : [f1]},
-        dtype=object
-        )], 
-            ignore_index=True)
-        
-        df.to_csv("nystroem-sigmoid.csv", index=False)
-        
+    df_nystroem_sigmoid.to_csv("nystroem-sigmoid.csv", index=False)
+    
 
 
