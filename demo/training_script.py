@@ -2,16 +2,13 @@
 from pathlib import Path
 import numpy as np 
 import pandas as pd 
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import OneClassSVM
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.kernel_approximation import Nystroem
-from sklearn.linear_model import SGDOneClassSVM
 from sklearn import pipeline
 from joblib import Parallel, delayed
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, precision_recall_curve, roc_curve, auc
+from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 
 # %%
 data = pd.read_csv(Path("./data/creditcard.csv"))
@@ -62,6 +59,7 @@ test_data = scaler.transform(test_data)
 
 # %%
 def train_ocsvm_rbf(g, n):
+    
     ocsvm = OneClassSVM(kernel='rbf', gamma=g, nu=n)
     ocsvm.fit(train_data)
     val_predictions = ocsvm.predict(val_data)
@@ -79,36 +77,39 @@ def train_ocsvm_rbf(g, n):
     
     return (g, n, accuracy, recall, precision, f1)
     
-results_ocsvm_rbf = Parallel(n_jobs=-1)(
-    delayed(train_ocsvm_rbf)(g, n) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9]
-)       
+    
+def process_ocsvm_rbf():
+    results_ocsvm_rbf = Parallel(n_jobs=-1)(
+        delayed(train_ocsvm_rbf)(g, n) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9]
+    )       
 
-df_ocsvm_rbf = pd.DataFrame(
-    {"gamma": [],
-    "nu": [],
-    "accuracy": [],
-    "recall" : [],
-    "precision" : [],
-    "f1" : []},
-    dtype=object
-)
+    df_ocsvm_rbf = pd.DataFrame(
+        {"gamma": [],
+        "nu": [],
+        "accuracy": [],
+        "recall" : [],
+        "precision" : [],
+        "f1" : []},
+        dtype=object
+    )
 
-for (g, n, accuracy, recall, precision, f1) in results_ocsvm_rbf:
-    df_ocsvm_rbf = pd.concat([df_ocsvm_rbf, pd.DataFrame( 
-        {"gamma": [g],
-        "nu": [n],
-        "accuracy": [accuracy],
-        "recall" : [recall],
-        "precision" : [precision],
-        "f1" : [f1]},
-    dtype=object
-    )], 
-        ignore_index=True)
+    for (g, n, accuracy, recall, precision, f1) in results_ocsvm_rbf:
+        df_ocsvm_rbf = pd.concat([df_ocsvm_rbf, pd.DataFrame( 
+            {"gamma": [g],
+            "nu": [n],
+            "accuracy": [accuracy],
+            "recall" : [recall],
+            "precision" : [precision],
+            "f1" : [f1]},
+        dtype=object
+        )], 
+            ignore_index=True)
 
-    df_ocsvm_rbf.to_csv("ocsvm-rbf.csv", index=False)
+        df_ocsvm_rbf.to_csv("ocsvm-rbf.csv", index=False)
 
 # %%
 def train_ocsvm_poly(d, g, n):
+    
     ocsvm = OneClassSVM(kernel='poly', degree=d, gamma=g, nu=n)
     ocsvm.fit(train_data)
     val_predictions = ocsvm.predict(val_data)
@@ -125,37 +126,38 @@ def train_ocsvm_poly(d, g, n):
     f1 = f1_score(val_labels, val_predictions)
     
     return (d, g, n, accuracy, recall, precision, f1)
-    
-results_ocsvm_poly = Parallel(n_jobs=-1)(
-    delayed(train_ocsvm_poly)(d, g, n) for d in range(1, 12, 1) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9]
-)       
+  
+def process_ocsvm_poly():     
+    results_ocsvm_poly = Parallel(n_jobs=-1)(
+        delayed(train_ocsvm_poly)(d, g, n) for d in range(1, 12, 1) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9]
+    )       
 
-df_ocsvm_poly = pd.DataFrame(
-    {"degree": [],
-    "gamma": [],
-    "nu": [],
-    "accuracy": [],
-    "recall" : [],
-    "precision" : [],
-    "f1" : []},
-    dtype=object
-)
-
-
-for (d, g, n, accuracy, recall, precision, f1) in results_ocsvm_poly:
-    df_ocsvm_poly = pd.concat([df_ocsvm_poly, pd.DataFrame( 
-            {"degree": [d],
-            "gamma": [g],
-            "nu": [n],
-            "accuracy": [accuracy],
-            "recall" : [recall],
-            "precision" : [precision],
-            "f1" : [f1]},
+    df_ocsvm_poly = pd.DataFrame(
+        {"degree": [],
+        "gamma": [],
+        "nu": [],
+        "accuracy": [],
+        "recall" : [],
+        "precision" : [],
+        "f1" : []},
         dtype=object
-        )], 
-            ignore_index=True)
+    )
 
-    df_ocsvm_poly.to_csv("ocsvm-poly.csv", index=False)
+
+    for (d, g, n, accuracy, recall, precision, f1) in results_ocsvm_poly:
+        df_ocsvm_poly = pd.concat([df_ocsvm_poly, pd.DataFrame( 
+                {"degree": [d],
+                "gamma": [g],
+                "nu": [n],
+                "accuracy": [accuracy],
+                "recall" : [recall],
+                "precision" : [precision],
+                "f1" : [f1]},
+            dtype=object
+            )], 
+                ignore_index=True)
+
+        df_ocsvm_poly.to_csv("ocsvm-poly.csv", index=False)
 
 # %%
 def train_ocsvm_sigmoid(g, n):
@@ -175,34 +177,36 @@ def train_ocsvm_sigmoid(g, n):
     f1 = f1_score(val_labels, val_predictions)
     
     return (g, n, accuracy, recall, precision, f1)
+
+def process_ocsvm_sigmoid():
     
-results_ocsvm_sigmoid = Parallel(n_jobs=-1)(
-    delayed(train_ocsvm_sigmoid)(g, n) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9]
-)       
+    results_ocsvm_sigmoid = Parallel(n_jobs=-1)(
+        delayed(train_ocsvm_sigmoid)(g, n) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9]
+    )       
 
-df_ocsvm_sigmoid = pd.DataFrame(
-    {"gamma": [],
-    "nu": [],
-    "accuracy": [],
-    "recall" : [],
-    "precision" : [],
-    "f1" : []},
-    dtype=object
-)
+    df_ocsvm_sigmoid = pd.DataFrame(
+        {"gamma": [],
+        "nu": [],
+        "accuracy": [],
+        "recall" : [],
+        "precision" : [],
+        "f1" : []},
+        dtype=object
+    )
 
-for (g, n, accuracy, recall, precision, f1) in results_ocsvm_sigmoid:
-    df_ocsvm_sigmoid = pd.concat([df_ocsvm_sigmoid, pd.DataFrame( 
-        {"gamma": [g],
-        "nu": [n],
-        "accuracy": [accuracy],
-        "recall" : [recall],
-        "precision" : [precision],
-        "f1" : [f1]},
-    dtype=object
-    )], 
-        ignore_index=True)
+    for (g, n, accuracy, recall, precision, f1) in results_ocsvm_sigmoid:
+        df_ocsvm_sigmoid = pd.concat([df_ocsvm_sigmoid, pd.DataFrame( 
+            {"gamma": [g],
+            "nu": [n],
+            "accuracy": [accuracy],
+            "recall" : [recall],
+            "precision" : [precision],
+            "f1" : [f1]},
+        dtype=object
+        )], 
+            ignore_index=True)
 
-    df_ocsvm_sigmoid.to_csv("ocsvm-sigmoid.csv", index=False)
+        df_ocsvm_sigmoid.to_csv("ocsvm-sigmoid.csv", index=False)
 
 
 # %%
@@ -224,38 +228,40 @@ def train_ocsvm_linear(n):
     
     return (n, accuracy, recall, precision, f1)
     
-results_ocsvm_linear = Parallel(n_jobs=-1)(
-    delayed(train_ocsvm_linear)(n) for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9]
-)       
+def process_ocsvm_linear():    
+    results_ocsvm_linear = Parallel(n_jobs=-1)(
+        delayed(train_ocsvm_linear)(n) for n in [10 ** -4, 10 ** -3, 5 * 10 ** -3, 7 * 10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.05, 0.1, 0.3, 0.5, 0.7, 0.9]
+    )       
 
-df_ocsvm_linear = pd.DataFrame(
-    {
-    "nu": [],
-    "accuracy": [],
-    "recall" : [],
-    "precision" : [],
-    "f1" : []},
-    dtype=object
-)
-
-for (n, accuracy, recall, precision, f1) in results_ocsvm_linear:
-    df_ocsvm_linear = pd.concat([df_ocsvm_linear, pd.DataFrame( 
+    df_ocsvm_linear = pd.DataFrame(
         {
-        "nu": [n],
-        "accuracy": [accuracy],
-        "recall" : [recall],
-        "precision" : [precision],
-        "f1" : [f1]},
-    dtype=object
-    )], 
-        ignore_index=True)
+        "nu": [],
+        "accuracy": [],
+        "recall" : [],
+        "precision" : [],
+        "f1" : []},
+        dtype=object
+    )
 
-    df_ocsvm_linear.to_csv("ocsvm-linear.csv", index=False)
+    for (n, accuracy, recall, precision, f1) in results_ocsvm_linear:
+        df_ocsvm_linear = pd.concat([df_ocsvm_linear, pd.DataFrame( 
+            {
+            "nu": [n],
+            "accuracy": [accuracy],
+            "recall" : [recall],
+            "precision" : [precision],
+            "f1" : [f1]},
+        dtype=object
+        )], 
+            ignore_index=True)
+
+        df_ocsvm_linear.to_csv("ocsvm-linear.csv", index=False)
 
 # %%
 from sklearn.mixture import GaussianMixture
 
 def train_gmm(n, q):
+    
     gmm = GaussianMixture(n_components=n, max_iter=10 ** 5, tol=10 ** -5, random_state=42)
     gmm.fit(train_data)
     
@@ -282,38 +288,40 @@ def train_gmm(n, q):
     
     return (n, q, accuracy, recall, precision, f1)
 
-results_gmm = Parallel(n_jobs=-1)(
-    delayed(train_gmm)(n, q) for n in range(1, 21) for q in [10 ** -4, 10 ** -3, 10 ** -2, 10 ** -1]
-)       
+def process_gmm():
+    results_gmm = Parallel(n_jobs=-1)(
+        delayed(train_gmm)(n, q) for n in range(1, 21) for q in [10 ** -4, 10 ** -3, 10 ** -2, 10 ** -1]
+    )       
 
-df_gmm = pd.DataFrame(
-    {"components": [],
-    "quantile": [],
-    "accuracy": [],
-    "recall" : [],
-    "precision" : [],
-    "f1" : []},
-    dtype=object
-)
+    df_gmm = pd.DataFrame(
+        {"components": [],
+        "quantile": [],
+        "accuracy": [],
+        "recall" : [],
+        "precision" : [],
+        "f1" : []},
+        dtype=object
+    )
 
-for (n, q, accuracy, recall, precision, f1) in results_gmm:
-    df_gmm = pd.concat([df_gmm, pd.DataFrame( 
-        {"components": [n],
-        "quantile": [q],
-        "accuracy": [accuracy],
-        "recall" : [recall],
-        "precision" : [precision],
-        "f1" : [f1]},
-    dtype=object
-    )], 
-        ignore_index=True)
-    
-    df_gmm.to_csv("gmm.csv", index=False)
+    for (n, q, accuracy, recall, precision, f1) in results_gmm:
+        df_gmm = pd.concat([df_gmm, pd.DataFrame( 
+            {"components": [n],
+            "quantile": [q],
+            "accuracy": [accuracy],
+            "recall" : [recall],
+            "precision" : [precision],
+            "f1" : [f1]},
+        dtype=object
+        )], 
+            ignore_index=True)
+        
+        df_gmm.to_csv("gmm.csv", index=False)
 
 # %%
 from sklearn.neighbors import KernelDensity
 
 def train_kde(k, b, q):
+    
     kde = KernelDensity(kernel=k, bandwidth=b)
     kde.fit(train_data)
 
@@ -340,35 +348,36 @@ def train_kde(k, b, q):
     
     return (k, b, q, accuracy, recall, precision, f1)
 
-results_kde = Parallel(n_jobs=-1)(
-    delayed(train_kde)(k, b, q) for k in ['gaussian', 'tophat', 'epanechnikov', 'exponential', 'linear', 'cosine'] for b in [0.5, 1.0, 5.0, 5.5, 6.0, 7.0, 8.0, 9.0] for q in [10 ** -4, 10 ** -3, 10 ** -2, 10 ** -1]
-)       
+def process_kde():
+    results_kde = Parallel(n_jobs=-1)(
+        delayed(train_kde)(k, b, q) for k in ['gaussian', 'tophat', 'epanechnikov', 'exponential', 'linear', 'cosine'] for b in [0.5, 1.0, 5.0, 5.5, 6.0, 7.0, 8.0, 9.0] for q in [10 ** -4, 10 ** -3, 10 ** -2, 10 ** -1]
+    )       
 
-df_kde = pd.DataFrame(
-    {"kernel": [],
-    "bandwidth": [],
-    "quantile": [],
-    "accuracy": [],
-    "recall" : [],
-    "precision" : [],
-    "f1" : []},
-    dtype=object
-)
+    df_kde = pd.DataFrame(
+        {"kernel": [],
+        "bandwidth": [],
+        "quantile": [],
+        "accuracy": [],
+        "recall" : [],
+        "precision" : [],
+        "f1" : []},
+        dtype=object
+    )
 
-for (k, b, q, accuracy, recall, precision, f1) in results_kde:
-    df_kde = pd.concat([df_kde, pd.DataFrame( 
-        {"kernel": [k],
-        "bandwidth": [b],
-        "quantile": [q],
-        "accuracy": [accuracy],
-        "recall" : [recall],
-        "precision" : [precision],
-        "f1" : [f1]},
-    dtype=object
-    )], 
-        ignore_index=True)
+    for (k, b, q, accuracy, recall, precision, f1) in results_kde:
+        df_kde = pd.concat([df_kde, pd.DataFrame( 
+            {"kernel": [k],
+            "bandwidth": [b],
+            "quantile": [q],
+            "accuracy": [accuracy],
+            "recall" : [recall],
+            "precision" : [precision],
+            "f1" : [f1]},
+        dtype=object
+        )], 
+            ignore_index=True)
 
-    df_kde.to_csv("kde.csv", index=False)
+        df_kde.to_csv("kde.csv", index=False)
 
 
 # %%
@@ -376,6 +385,7 @@ from sklearn import linear_model
 from sklearn.kernel_approximation import Nystroem
 
 def train_nystroem_rbf(g, n):
+    
     feature_map_nystroem = Nystroem(kernel='rbf',
                                     gamma=g,
                                 random_state=42,
@@ -403,37 +413,39 @@ def train_nystroem_rbf(g, n):
     
     return (g, n, accuracy, recall, precision, f1)
 
-results_nystroem_rbf = Parallel(n_jobs=-1)(
-    delayed(train_nystroem_rbf)(g, n) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 10 ** -2, 4 * 10 ** -2, 5 * 10 ** -2, 10 ** -1, 3 * 10 ** -1]
-)       
+def process_nystroem_rbf():
+    results_nystroem_rbf = Parallel(n_jobs=-1)(
+        delayed(train_nystroem_rbf)(g, n) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 10 ** -2, 4 * 10 ** -2, 5 * 10 ** -2, 10 ** -1, 3 * 10 ** -1]
+    )       
 
-df_nystroem_rbf = pd.DataFrame(
-    {"gamma": [],
-    "components_percent": [],
-    "accuracy": [],
-    "recall" : [],
-    "precision" : [],
-    "f1" : []},
-    dtype=object
-)
+    df_nystroem_rbf = pd.DataFrame(
+        {"gamma": [],
+        "components_percent": [],
+        "accuracy": [],
+        "recall" : [],
+        "precision" : [],
+        "f1" : []},
+        dtype=object
+    )
 
-for (g, n, accuracy, recall, precision, f1) in results_nystroem_rbf:
-    df_nystroem_rbf = pd.concat([df_nystroem_rbf, pd.DataFrame( 
-        {"gamma": [g],
-        "components_percent": [n],
-        "accuracy": [accuracy],
-        "recall" : [recall],
-        "precision" : [precision],
-        "f1" : [f1]},
-    dtype=object
-    )], 
-        ignore_index=True)
-    
-    df_nystroem_rbf.to_csv("nystroem-rbf.csv", index=False)
+    for (g, n, accuracy, recall, precision, f1) in results_nystroem_rbf:
+        df_nystroem_rbf = pd.concat([df_nystroem_rbf, pd.DataFrame( 
+            {"gamma": [g],
+            "components_percent": [n],
+            "accuracy": [accuracy],
+            "recall" : [recall],
+            "precision" : [precision],
+            "f1" : [f1]},
+        dtype=object
+        )], 
+            ignore_index=True)
+        
+        df_nystroem_rbf.to_csv("nystroem-rbf.csv", index=False)
     
 # %%
 
 def train_nystroem_poly(d, g, n):
+    
     feature_map_nystroem = Nystroem(kernel='poly',
                                             gamma=g,
                                             degree=d,
@@ -463,40 +475,42 @@ def train_nystroem_poly(d, g, n):
     
     return (d, g, n, accuracy, recall, precision, f1)
 
-results_nystroem_poly = Parallel(n_jobs=-1)(
-    delayed(train_nystroem_poly)(d, g, n) for d in range(1, 12, 1) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 10 ** -2, 4 * 10 ** -2, 5 * 10 ** -2, 10 ** -1, 3 * 10 ** -1]
-)       
+def process_nystroem_poly():
+    results_nystroem_poly = Parallel(n_jobs=-1)(
+        delayed(train_nystroem_poly)(d, g, n) for d in range(1, 12, 1) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 10 ** -2, 4 * 10 ** -2, 5 * 10 ** -2, 10 ** -1, 3 * 10 ** -1]
+    )       
 
-df_nystroem_poly = pd.DataFrame(
-    {"degree": [],
-    "gamma": [],
-    "components_percent": [],
-    "accuracy": [],
-    "recall" : [],
-    "precision" : [],
-    "f1" : []},
-    dtype=object
-)
-
-
-for (d, g, n, accuracy, recall, precision, f1) in results_nystroem_poly:
-    df_nystroem_poly = pd.concat([df_nystroem_poly, pd.DataFrame( 
-            {"degree": [d],
-            "gamma": [g],
-            "components_percent": [n],
-            "accuracy": [accuracy],
-            "recall" : [recall],
-            "precision" : [precision],
-            "f1" : [f1]},
+    df_nystroem_poly = pd.DataFrame(
+        {"degree": [],
+        "gamma": [],
+        "components_percent": [],
+        "accuracy": [],
+        "recall" : [],
+        "precision" : [],
+        "f1" : []},
         dtype=object
-        )], 
-            ignore_index=True)
+    )
 
-    df_nystroem_poly.to_csv("nystroem-poly.csv", index=False)
+
+    for (d, g, n, accuracy, recall, precision, f1) in results_nystroem_poly:
+        df_nystroem_poly = pd.concat([df_nystroem_poly, pd.DataFrame( 
+                {"degree": [d],
+                "gamma": [g],
+                "components_percent": [n],
+                "accuracy": [accuracy],
+                "recall" : [recall],
+                "precision" : [precision],
+                "f1" : [f1]},
+            dtype=object
+            )], 
+                ignore_index=True)
+
+        df_nystroem_poly.to_csv("nystroem-poly.csv", index=False)
 
 # %%
 
 def train_nystroem_sigmoid(g, n):
+    
     feature_map_nystroem = Nystroem(kernel='sigmoid',
                                     gamma=g,
                                 random_state=42,
@@ -525,33 +539,57 @@ def train_nystroem_sigmoid(g, n):
     
     return (g, n, accuracy, recall, precision, f1)
 
-results_nystroem_sigmoid = Parallel(n_jobs=-1)(
-    delayed(train_nystroem_sigmoid)(g, n) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 10 ** -2, 4 * 10 ** -2, 5 * 10 ** -2, 10 ** -1, 3 * 10 ** -1]
-)       
+def process_nystroem_sigmoid():
+    results_nystroem_sigmoid = Parallel(n_jobs=-1)(
+        delayed(train_nystroem_sigmoid)(g, n) for g in [10 ** -3, 10 ** -2, 2 * 10 ** -2, 0.03, 0.5, 1.0, 2.0] for n in [10 ** -4, 10 ** -3, 10 ** -2, 4 * 10 ** -2, 5 * 10 ** -2, 10 ** -1, 3 * 10 ** -1]
+    )       
 
-df_nystroem_sigmoid = pd.DataFrame(
-    {"gamma": [],
-    "components_percent": [],
-    "accuracy": [],
-    "recall" : [],
-    "precision" : [],
-    "f1" : []},
-    dtype=object
-)
+    df_nystroem_sigmoid = pd.DataFrame(
+        {"gamma": [],
+        "components_percent": [],
+        "accuracy": [],
+        "recall" : [],
+        "precision" : [],
+        "f1" : []},
+        dtype=object
+    )
 
-for (g, n, accuracy, recall, precision, f1) in results_nystroem_sigmoid:
-    df_nystroem_sigmoid = pd.concat([df_nystroem_sigmoid, pd.DataFrame( 
-        {"gamma": [g],
-        "components_percent": [n],
-        "accuracy": [accuracy],
-        "recall" : [recall],
-        "precision" : [precision],
-        "f1" : [f1]},
-    dtype=object
-    )], 
-        ignore_index=True)
-    
-    df_nystroem_sigmoid.to_csv("nystroem-sigmoid.csv", index=False)
-    
+    for (g, n, accuracy, recall, precision, f1) in results_nystroem_sigmoid:
+        df_nystroem_sigmoid = pd.concat([df_nystroem_sigmoid, pd.DataFrame( 
+            {"gamma": [g],
+            "components_percent": [n],
+            "accuracy": [accuracy],
+            "recall" : [recall],
+            "precision" : [precision],
+            "f1" : [f1]},
+        dtype=object
+        )], 
+            ignore_index=True)
+        
+        df_nystroem_sigmoid.to_csv("nystroem-sigmoid.csv", index=False)
+        
 
-
+def process_model(idx):
+    if idx == 0:
+        process_ocsvm_rbf()
+    elif idx == 1:
+        process_ocsvm_poly()
+    elif idx == 2:
+        process_ocsvm_sigmoid()
+    elif idx == 3:
+        process_ocsvm_linear()
+    elif idx == 4:
+        process_gmm()
+    elif idx == 5:
+        process_kde()
+    elif idx == 6:
+        process_nystroem_rbf()
+    elif idx == 7:
+        process_nystroem_poly()
+    elif idx == 8:
+        process_nystroem_sigmoid()
+        
+if __name__ == '__main__': 
+    Parallel(n_jobs=-1)(
+        delayed(process_model)(i) for i in range(9)
+    )
