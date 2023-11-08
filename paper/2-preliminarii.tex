@@ -134,9 +134,9 @@ A treia formulare ce implică găsirea hipersferei minime
 
 Algoritmul încearcă să estimeze funcţia densitate de probabilitate 
 din care au fost generate datele folosind 
-\textbf{o sumă ponderată de distribuţii Gaussiene}.
+\textbf{mai multe distribuţii Gaussiene}.
 Astfel, putem modela distribuţii multimodale utilizând o distribuţie bine cunoscută.
-Parametrii necesari sunt ponderile, mediile şi covarianţele fiecărei componente.
+Parametrii necesari sunt mediile şi covarianţele fiecărei componente.
 
 \begin{figure}[H]
     \centering
@@ -150,18 +150,21 @@ Parametrii necesari sunt ponderile, mediile şi covarianţele fiecărei componen
 Funcţia densitate de probabilitate estimată este dată de 
 
 \begin{equation}
-    p(x | \theta) = \sum_{k=1}^{K} \pi_k \mathcal{N}(x | \mu_k, \Sigma_k)
-    \end{equation}
+    \text{p}(x) = 1 - \prod_{i=1}^{K} \left(1 - \mathcal{N}(x|\mu_i, \Sigma_i)\right)
+\end{equation}
     
-    \begin{itemize}
-        \item $K$ este numărul de componente Gaussiene
-        \item $\pi_k$ este ponderea celei de a $k$-a componentă cu $\sum_{k=1}^{K} \pi_k = 1$
-        \item $\mathcal{N}(x | \mu_k, \Sigma_k)$ este distribuţia Gaussiană
-        cu medie $\mu_k$ şi matrice de covarianţă $\Sigma_k$
-    
-    Parametrii $\theta$ sunt de obicei învăţaţi din setul de date folosind 
-    tehnici precum algoritmul Expectation-Maximization (EM).
-    \end{itemize}
+\begin{itemize}
+    \item $K$ este numărul de componente Gaussiene
+    \item $\mathcal{N}(x | \mu_i, \Sigma_i)$ este distribuţia Gaussiană
+    cu medie $\mu_i$ şi matrice de covarianţă $\Sigma_i$
+
+Parametrii $\theta$ sunt de obicei învăţaţi din setul de date folosind 
+tehnici precum algoritmul Expectation-Maximization (EM).
+\end{itemize}
+
+Această formulă ne indică probabilitatea ca un punct să fi fost generat de oricare 
+dintre componentele Gaussiene implicate. Deci, o valoare cât mai mică sugerează 
+o şansă mare ca punctul să fie anomalie.
 
 \section{Kernel Density Estimation}
 
@@ -346,4 +349,6 @@ f1 score, vom calcula rezultatul folosind clasa minoritară ca referinţă. Deci
 de faptul că vrem să urmărim performanţa modelului pe detectarea anomaliilor în special, cu ajutorul
 precision şi recall, dar în acelaşi timp vrem să obţinem un echilibru între fals pozitive şi 
 adevărat pozitive, utilizând accuracy împreună cu f1 score, metode ce iau în calcul performanţa 
-per total pe ambele clase. Este important să detectăm cât mai multe fraude, dar în acelaşi timp nu ne dorim să semnalăm un număr prea mare de tranzacţii ca fiind problematice deoarece modelul ar deveni un inconvenient. Prin urmare, aceste metrici reflectă cel mai bine nevoile problemei noastre.
+per total pe ambele clase. Este important să detectăm cât mai multe fraude, dar în acelaşi timp 
+nu ne dorim să semnalăm un număr prea mare de tranzacţii ca fiind problematice deoarece modelul 
+ar deveni un inconvenient.

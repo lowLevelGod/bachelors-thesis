@@ -67,51 +67,23 @@ defini ce înseamnă o observaţie normală.
     astfel fiind de ajutor în moderarea materialului încărcat pe platforme. 
 \end{itemize}
 
-\section{Tipuri de detecţie a anomaliilor}
-
-\subsection{Outlier detection}
-
-\textbf{Outlier detection} are scopul de a identifica observaţii fie noi,
-fie previzibile, din setul de antrenare, care deviază de la 
-comportamentul normal. 
-\textbf{Outliers} pot fi valori extreme, erori cauzate 
-de zgomot, posibil din instrumentele de măsură sau senzorii folosiţi 
-pentru colectarea datelor, sau comportament anormal.
-
-Această abordare este utilă atunci când avem un set de date \textbf{"poluat"} cu 
-observaţii anormale şi ne dorim să extragem din el doar porţiunea ce conţine 
-observaţii deviante. De asemenea, se poate folosi atât pe seturi adnotate, cât 
-şi pe seturi fără etichete.
-
-\subsection{Novelty detection}
-
-\textbf{Novelty detection} are scopul de a identifica observaţii noi 
-ce diferă semnificativ de datele de antrenare care au rolul de a 
-caracteriza cât mai bine clasa normală. Din acest motiv, este foarte 
-important ca setul de antrenare să nu conţină
-decât date normale pentru a putea identifica caracteristicile clasei de referință,
-astfel modelând comportamentul normal.
-
-Prin urmare, această abordare este utilă atunci cand avem un 
-set de date \textbf{"curat"} (fără 
-anomalii) şi ne aşteptăm ca observaţiile noi să fie rare şi să aibă trăsături
-distincte faţă de setul de antrenare. De asemenea, se presupune că datele sunt adnotate 
-pentru a putea extrage punctele cu eticheta normală şi să le folosim la antrenare.
-
-\textbf{Novelty detection} este tipul de detecţie al anomaliilor pe care îl studiem în 
-această lucrare.
-
-\section{Detecţia anomaliilor vs clasificare binară}
+\section{Detecţia anomaliilor vs clasificare clasică}
 
 \subsection{Greşeală comună}
 
 La prima vedere, aceste două probleme par sa coincidă şi ne determină
 să ne întrebăm de ce a mai apărut un nou domeniu de cercetare, anume detecţia
 anomaliilor, când deja avem la dispoziţie atâtea rezultate utile pentru 
-problema clasificării. Un argument ar putea fi că 
-detecţia anomaliilor este de fapt o problemă de clasificare binară în care proporţia
-celor 2 clase este neechilibrată. Deşi este contraintuitiv, această 
-afirmaţie este greşită.
+problema clasificării. Din păcate, dacă nu cunoaştem numărul de clase ce pot apărea 
+sau nu avem un eşantion reprezentativ pentru toate tipurile de clase, fapt ce se 
+întâmplă deseori în practică, nu putem utiliza un clasificator clasic. De exemplu, 
+în cazul tranzacţiilor bancare, nu putem şti cu certitudine care sunt toate 
+tipurile de fraudă ce pot apărea şi nici nu avem un număr suficient de exemple 
+pentru a defini măcar tipurile de fraudă pe care le-am identificat până acum.
+Prin urmare, este mult mai uşor să modelăm problema în jurul unei singure clase 
+de referință, decât să încercăm definirea unei clase adiţionale ce de fapt 
+este compusă dintr-o multitudine de subclase necunoscute.
+
 
 \subsection{Scopul detecţiei anomaliilor}
 
@@ -125,14 +97,15 @@ Un exemplu trivial ar putea fi să detectăm dacă animalul din imagine este un 
 În acest caz, normal înseamnă câine, iar anormal înseamnă orice alt animal care nu este
 câine. Se observă că este relativ uşor să caracterizăm conceptul de câine, în timp ce 
 definirea conceptului de "diferit de câine" este complexă, fapt ce ar pune în dificultate
-un clasificator binar care prin definiţie învaţă trăsăturile definitorii pentru ambele 
-clase. 
+un clasificator clasic care prin definiţie are nevoie de un număr cunoscut de clase 
+cu observaţiile reprezentative aferente.
 
-\subsection{Scopul clasificării binare}
+\subsection{Scopul clasificării clasice}
 
-La clasificarea binară, cele 2 clase sunt bine 
+La clasificarea clasică, clasele ce trebuie identificate sunt bine 
 definite şi de cele mai multe ori, trasăturile lor se suprapun în mai multe locuri. De 
-asemenea, această problemă acordă o importanţă \textbf{egală} celor 2 categorii, pe când
+asemenea, această problemă acordă o importanţă \textbf{egală} tuturor categoriilor
+implicate, pe când 
 eşecul de a semnala o anomalie este în general mult mai dăunător faţă de 
 detectarea unei observaţii normale ca fiind anormală. 
 
@@ -143,10 +116,3 @@ trăsături definitorii, precum mustăţile. Vrem să detectăm la fel de bine a
 pe când într-o problemă clasică de detecţie a anomaliilor, precum identificarea 
 tranzacţiilor frauduloase, vrem preponderent să nu ratăm evenimentele cu 
 caracter maliţios.
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{images/The-anomaly-detection-and-the-classification-learning-schemas.pdf}
-    \caption{Detecţia anomaliilor în stânga şi clasificarea binară în dreapta}
-\end{figure}
