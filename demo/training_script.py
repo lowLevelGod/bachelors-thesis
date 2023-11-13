@@ -9,6 +9,7 @@ from sklearn.kernel_approximation import Nystroem
 from sklearn import pipeline
 from joblib import Parallel, delayed
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
+import time
 
 # %%
 data = pd.read_csv(Path("./data/creditcard.csv"))
@@ -65,14 +66,19 @@ df_ocsvm_rbf = pd.DataFrame(
     "accuracy": [],
     "recall" : [],
     "precision" : [],
-    "f1" : []},
+    "f1" : [],
+    "time" : []},
     dtype=object
 )
 
 def train_ocsvm_rbf(g, n):
     
     ocsvm = OneClassSVM(kernel='rbf', gamma=g, nu=n)
+    
+    start = time.time()
     ocsvm.fit(train_data)
+    end = time.time()
+        
     val_predictions = ocsvm.predict(val_data)
     val_predictions[val_predictions == 1] = 0
     val_predictions[val_predictions == -1] = 1
@@ -93,7 +99,8 @@ def train_ocsvm_rbf(g, n):
             "accuracy": [accuracy],
             "recall" : [recall],
             "precision" : [precision],
-            "f1" : [f1]},
+            "f1" : [f1],
+            "time" : [end - start]},
         dtype=object
         )], 
             ignore_index=True)
@@ -116,14 +123,19 @@ df_ocsvm_poly = pd.DataFrame(
     "accuracy": [],
     "recall" : [],
     "precision" : [],
-    "f1" : []},
+    "f1" : [],
+    "time" : []},
     dtype=object
 )
 
 def train_ocsvm_poly(d, g, n):
     
     ocsvm = OneClassSVM(kernel='poly', degree=d, gamma=g, nu=n)
+    
+    start = time.time()
     ocsvm.fit(train_data)
+    end = time.time()
+        
     val_predictions = ocsvm.predict(val_data)
     val_predictions[val_predictions == 1] = 0
     val_predictions[val_predictions == -1] = 1
@@ -145,7 +157,8 @@ def train_ocsvm_poly(d, g, n):
                 "accuracy": [accuracy],
                 "recall" : [recall],
                 "precision" : [precision],
-                "f1" : [f1]},
+                "f1" : [f1],
+                "time" : [end - start]},
             dtype=object
             )], 
                 ignore_index=True)
@@ -166,14 +179,19 @@ df_ocsvm_sigmoid = pd.DataFrame(
     "accuracy": [],
     "recall" : [],
     "precision" : [],
-    "f1" : []},
+    "f1" : [],
+    "time" : []},
     dtype=object
 )
 
 
 def train_ocsvm_sigmoid(g, n):
     ocsvm = OneClassSVM(kernel='sigmoid',gamma=g, nu=n)
+    
+    start = time.time()
     ocsvm.fit(train_data)
+    end = time.time()
+    
     val_predictions = ocsvm.predict(val_data)
     val_predictions[val_predictions == 1] = 0
     val_predictions[val_predictions == -1] = 1
@@ -194,7 +212,8 @@ def train_ocsvm_sigmoid(g, n):
         "accuracy": [accuracy],
         "recall" : [recall],
         "precision" : [precision],
-        "f1" : [f1]},
+        "f1" : [f1],
+        "time" : [end - start]},
     dtype=object
     )], 
         ignore_index=True)
@@ -217,14 +236,19 @@ df_ocsvm_linear = pd.DataFrame(
     "accuracy": [],
     "recall" : [],
     "precision" : [],
-    "f1" : []},
+    "f1" : [],
+    "time" : []},
     dtype=object
 )
 
 
 def train_ocsvm_linear(n):
     ocsvm = OneClassSVM(kernel='linear',  nu=n)
+    
+    start = time.time()
     ocsvm.fit(train_data)
+    end = time.time()
+    
     val_predictions = ocsvm.predict(val_data)
     val_predictions[val_predictions == 1] = 0
     val_predictions[val_predictions == -1] = 1
@@ -245,7 +269,8 @@ def train_ocsvm_linear(n):
             "accuracy": [accuracy],
             "recall" : [recall],
             "precision" : [precision],
-            "f1" : [f1]},
+            "f1" : [f1],
+            "time"  : [end - start]},
         dtype=object
         )], 
             ignore_index=True)
@@ -268,14 +293,19 @@ df_gmm = pd.DataFrame(
     "accuracy": [],
     "recall" : [],
     "precision" : [],
-    "f1" : []},
+    "f1" : [],
+    "time"  : []},
     dtype=object
 )
 
 def train_gmm(n, q):
     
     gmm = GaussianMixture(n_components=n, max_iter=10 ** 5, tol=10 ** -5, random_state=42)
+    
+    start = time.time()
     gmm.fit(train_data)
+    end = time.time()
+    
     
     scores = gmm.score_samples(val_data)
     threshold = np.quantile(scores, q)
@@ -305,7 +335,8 @@ def train_gmm(n, q):
             "accuracy": [accuracy],
             "recall" : [recall],
             "precision" : [precision],
-            "f1" : [f1]},
+            "f1" : [f1],
+            "time" : [end - start]},
         dtype=object
         )], 
             ignore_index=True)
@@ -329,14 +360,18 @@ df_kde = pd.DataFrame(
     "accuracy": [],
     "recall" : [],
     "precision" : [],
-    "f1" : []},
+    "f1" : [],
+    "time" : []},
     dtype=object
 )
 
 def train_kde(k, b, q):
     
     kde = KernelDensity(kernel=k, bandwidth=b)
+    
+    start = time.time()
     kde.fit(train_data)
+    end = time.time()
 
     scores = kde.score_samples(val_data)
     threshold = np.quantile(scores, q)
@@ -367,7 +402,8 @@ def train_kde(k, b, q):
         "accuracy": [accuracy],
         "recall" : [recall],
         "precision" : [precision],
-        "f1" : [f1]},
+        "f1" : [f1],
+        "time" : [end - start]},
     dtype=object
     )], 
         ignore_index=True)
@@ -392,7 +428,8 @@ df_nystroem_rbf = pd.DataFrame(
     "accuracy": [],
     "recall" : [],
     "precision" : [],
-    "f1" : []},
+    "f1" : [],
+    "time" : []},
     dtype=object
 )
 
@@ -408,7 +445,10 @@ def train_nystroem_rbf(g, n):
                                             ("svm", linear_model.SGDOneClassSVM(random_state=42))])
 
 
+    start = time.time()
     nystroem_approx_svm.fit(train_data)
+    end = time.time()
+    
 
     val_predictions = nystroem_approx_svm.predict(val_data)
 
@@ -431,7 +471,8 @@ def train_nystroem_rbf(g, n):
         "accuracy": [accuracy],
         "recall" : [recall],
         "precision" : [precision],
-        "f1" : [f1]},
+        "f1" : [f1],
+        "time" : [end - start]},
     dtype=object
     )], 
         ignore_index=True)
@@ -454,7 +495,8 @@ df_nystroem_poly = pd.DataFrame(
     "accuracy": [],
     "recall" : [],
     "precision" : [],
-    "f1" : []},
+    "f1" : [],
+    "time" : []},
     dtype=object
 )
 
@@ -470,7 +512,9 @@ def train_nystroem_poly(d, g, n):
                                             ("svm", linear_model.SGDOneClassSVM(random_state=42))])
 
 
+    start = time.time()
     nystroem_approx_svm.fit(train_data)
+    end = time.time()
 
     val_predictions = nystroem_approx_svm.predict(val_data)
 
@@ -494,7 +538,8 @@ def train_nystroem_poly(d, g, n):
             "accuracy": [accuracy],
             "recall" : [recall],
             "precision" : [precision],
-            "f1" : [f1]},
+            "f1" : [f1],
+            "time" : [end - start]},
         dtype=object
         )], 
             ignore_index=True)
@@ -517,7 +562,8 @@ df_nystroem_sigmoid = pd.DataFrame(
     "accuracy": [],
     "recall" : [],
     "precision" : [],
-    "f1" : []},
+    "f1" : [],
+    "time" : []},
     dtype=object
 )
 
@@ -532,7 +578,9 @@ def train_nystroem_sigmoid(g, n):
                                             ("svm", linear_model.SGDOneClassSVM(random_state=42))])
 
 
+    start = time.time()
     nystroem_approx_svm.fit(train_data)
+    end = time.time()
 
     val_predictions = nystroem_approx_svm.predict(val_data)
 
@@ -555,7 +603,8 @@ def train_nystroem_sigmoid(g, n):
         "accuracy": [accuracy],
         "recall" : [recall],
         "precision" : [precision],
-        "f1" : [f1]},
+        "f1" : [f1],
+        "time" : [end - start]},
     dtype=object
     )], 
         ignore_index=True)
