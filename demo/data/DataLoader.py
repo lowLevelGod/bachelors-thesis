@@ -5,7 +5,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 
 class DataLoader:
     def __init__(self) -> None:
-        data = pd.read_csv(Path("./creditcard.csv"))
+        data = pd.read_csv(Path("./data/creditcard.csv"))
         dataWithoutTime = data.drop("Time", axis = 1)
 
         # %%
