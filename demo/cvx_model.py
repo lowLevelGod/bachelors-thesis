@@ -31,7 +31,7 @@ class CvxModel:
         K = self.getKernelMatrix(X)
         
         alpha = cp.Variable(n)
-        objective = cp.Minimize(0.5 * cp.quad_form(alpha, K))
+        objective = cp.Minimize(0.5 * cp.quad_form(alpha, cp.psd_wrap(K)))
         constraints = [
             alpha >= 0,  
             1 / (self.nu * n) >= alpha,
@@ -41,6 +41,7 @@ class CvxModel:
         problem = cp.Problem(objective, constraints)
         problem.solve()
         self.alphas = alpha.value
+        self.alphas[self.alphas < 10 ** -10] = 0
         
         i = self.alphas[np.where((self.alphas < 1 / (self.nu * n)) & (self.alphas > 0))].argmax()
         self.rho = sum([alpha * K[j][i] for (j, alpha) in enumerate(self.alphas)])
@@ -48,13 +49,10 @@ class CvxModel:
     def decision_function(self, x):
         f = sum([alpha * self.kernel_function(self.X[j], x) for (j, alpha) in enumerate(self.alphas)])
         f -= self.rho
-        
         return int(np.sign(f))
     
     def predict(self, x):
-        predictions = [self.decision_function(y) for y in x]
-        predictions[predictions == 1] = 0
-        predictions[predictions == -1] = 1
+        predictions = [0 if self.decision_function(y) == 1 else 1 for y in x]
         
         return np.array(predictions)
         
