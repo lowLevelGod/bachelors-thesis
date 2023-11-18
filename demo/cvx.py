@@ -8,7 +8,7 @@ dl = DataLoader()
 train_data, val_data, test_data = dl.loadData()
 val_labels, test_labels = dl.loadLabels()
 
-n = int(0.01 * len(train_data))
+n = int(0.001 * len(train_data))
 gamma = 0.01
 nu = 0.001
 

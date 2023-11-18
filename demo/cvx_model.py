@@ -1,5 +1,6 @@
 import numpy as np
 import cvxpy as cp
+from sklearn.metrics.pairwise import rbf_kernel, linear_kernel
 
 class CvxModel:
     def __init__(self, kernel: str=None, nu: float=None, gamma: float=None, degree: float=None) -> None:
@@ -9,27 +10,21 @@ class CvxModel:
         self.degree = degree 
         self.alphas = None
         self.rho = None
+        self.K = None
         self.kernel_function = {
-            'rbf': lambda x, y: np.exp(-gamma * np.sum((x - y) ** 2)),
-            'linear': lambda x, y: np.dot(x, y)
+            'rbf': lambda x, y: rbf_kernel(x, y, gamma=self.gamma),
+            'linear': lambda x, y: linear_kernel(x, y)
         }[kernel]
         self.X = None
         
     def getKernelMatrix(self, X):
-        K = None
-        if self.kernel == 'rbf':
-            X_norm = np.sum(X ** 2, axis = -1)
-            K = np.exp(-self.gamma * (X_norm[:,None] + X_norm[None,:] - 2 * np.dot(X, X.T)))
-        elif self.kernel == 'linear':
-            K = np.dot(X, X.T) + 10 ** -8 * np.eye(X.shape[0])
-            
+        K = self.kernel_function(X, X)
+        
         return K
     
-    def fit(self, X):
-        self.X = X
-        n = len(X)
-        K = self.getKernelMatrix(X)
-        
+    def compute_alphas(self):
+        n = len(self.X)
+        K = self.K 
         alpha = cp.Variable(n)
         objective = cp.Minimize(0.5 * cp.quad_form(alpha, cp.psd_wrap(K)))
         constraints = [
@@ -40,19 +35,31 @@ class CvxModel:
         
         problem = cp.Problem(objective, constraints)
         problem.solve()
-        self.alphas = alpha.value
-        self.alphas[self.alphas < 10 ** -10] = 0
         
-        i = self.alphas[np.where((self.alphas < 1 / (self.nu * n)) & (self.alphas > 0))].argmax()
-        self.rho = sum([alpha * K[j][i] for (j, alpha) in enumerate(self.alphas)])
-        
-    def decision_function(self, x):
-        f = sum([alpha * self.kernel_function(self.X[j], x) for (j, alpha) in enumerate(self.alphas)])
-        f -= self.rho
-        return int(np.sign(f))
+        return alpha.value
     
-    def predict(self, x):
-        predictions = [0 if self.decision_function(y) == 1 else 1 for y in x]
+    def compute_rho(self):
+        n = len(self.X)
+        i = self.alphas[np.where((self.alphas < 1 / (self.nu * n)) & (self.alphas > 0))].argmax()
+        
+        return np.sum(self.alphas * self.K[ : , i])
+    
+    def fit(self, X):
+        self.X = X
+        self.K = self.getKernelMatrix(X)
+        self.alphas = self.compute_alphas()
+        self.rho = self.compute_rho()
+        
+    def decision_function(self, Y):
+        f = np.sum(self.alphas[ : , np.newaxis] * self.kernel_function(self.X, Y), axis=0)
+        f -= self.rho
+        
+        return np.sign(f).astype(int)
+    
+    def predict(self, Y):
+        predictions = self.decision_function(Y)
+        predictions[predictions == 1] = 0
+        predictions[predictions == -1] = 1
         
         return np.array(predictions)
         
