@@ -29,8 +29,8 @@ class CvxModel:
         objective = cp.Minimize(0.5 * cp.quad_form(alpha, cp.psd_wrap(K)))
         constraints = [
             alpha >= 0,  
-            1 / (self.nu * n) >= alpha,
-            cp.sum(alpha) == 1 
+            1 >= alpha,
+            cp.sum(alpha) == self.nu * n
         ]
         
         problem = cp.Problem(objective, constraints)
@@ -40,7 +40,7 @@ class CvxModel:
     
     def compute_rho(self):
         n = len(self.X)
-        i = self.alphas[np.where((self.alphas < 1 / (self.nu * n)) & (self.alphas > 0))].argmax()
+        i = self.alphas[np.where((self.alphas < 1) & (self.alphas > 0))].argmax()
         
         return np.sum(self.alphas * self.K[ : , i])
     

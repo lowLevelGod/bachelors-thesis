@@ -12,6 +12,7 @@ n = int(0.001 * len(train_data))
 gamma = 0.01
 nu = 0.001
 
+np.random.seed(42)
 X = train_data[np.random.choice(len(train_data), size=n, replace=False)]
 
 cvx = CvxModel(kernel='rbf', nu=nu, gamma=gamma)
