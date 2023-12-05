@@ -56,7 +56,7 @@ mai multe dimensiuni decât cel iniţial, în funcţie de kernel,
 care să separe originea (se presupune că punctele sunt centrate) spaţiului de trăsături
 de restul punctelor din setul de date\cite{scholkopf2000support}.
 
-Un alt mod echivalent de a privi algoritmul este găsirea celei mai \textbf{mici 
+Un alt mod de a privi algoritmul este găsirea celei mai \textbf{mici 
 hipersfere} care să includă toate punctele din setul de date\cite{tax2004support}.
 
 \begin{figure}[H]
@@ -132,6 +132,14 @@ A doua formulare ce implică găsirea hipersferei minime
 
 \subsection{Ideea algoritmului}
 
+Este prea restrictiv să presupunem ca fiecare punct dintr-un set de date 
+provine din aceeaşi distribuţie unimodală. Prin urmare, a apărut tehnica de bază 
+\textbf{"Mixture model"} ce îşi propune să elimine presupunerea anterioară pentru 
+a putea modela şi distribuţii multimodale care poate nu provin nici măcar din aceeaşi 
+familie, utilizând o sumă ponderată de mai multe componente cu proprietăţi
+cunoscute. Totuşi, în practică, se folosesc componente din aceeaşi familie pentru 
+modelarea distribuţiei doar că fiecare componentă are parametri diferiţi.
+
 Algoritmul încearcă să estimeze funcţia densitate de probabilitate 
 din care au fost generate datele folosind 
 \textbf{mai multe distribuţii Gaussiene}.
@@ -172,6 +180,13 @@ o şansă mare ca punctul să fie anomalie.
 
 Precum Gaussian Mixture Model, algoritmul încearcă să estimeze 
 funcţia densitate de probabilitate din care au fost generate datele.
+
+Tehnica de bază utilizează un kernel funcţie de distribuţie probabilitate
+pe care "îl plasăm" la fiecare punct din setul de date, căruia îi oferim o pondere 
+de $\frac{1}{n}$, unde $n$ este numărul de observaţii. Apoi, distribuţia adevărată
+este aproximată prin adunarea tuturor rezultatelor precedente. Procesul este similar 
+aflării ariei de sub graficul unei funcţii cu ajutorul unei integrale ce 
+apare dintr-o sumă de valori ale funcţiei într-o infinitate de puncte.
 
 Un parametru numit \textbf{"lăţime de bandă"} influenţează netezimea distribuţiei 
 rezultate.

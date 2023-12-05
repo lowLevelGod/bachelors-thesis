@@ -17,6 +17,31 @@ comportă anormal şi astfel apar anomaliile.
 de oameni. Algoritmii de învăţare automată pot să semnaleze potenţialele
 abateri, dar în final, decizia rămâne a omului.
 
+\section{Avantajele învăţării automate}
+
+Când sarcinile ce trebuie îndeplinite periodic, necesare bunei funcţionări a unei 
+companii spre exemplu, încep să ocupe o mare parte din timpul oamenilor, apare 
+nevoia automatizării. 
+
+În general, soluţiile ce includ stabilirea unui set de reguli
+sunt de preferat, datorită simplităţii lor. Un exemplu banal ar fi verificarea 
+siguranţei unei parole introduse de utilizator la crearea unui cont pe o platformă
+web. Este suficient să verificăm dacă parola are un număr minim precizat de caractere 
+sau dacă conţine anumite simboluri ce reduc vulnerabilitatea în faţa unui atac cibernetic.
+
+Din păcate, multe din problemele cu care ne confruntăm nu au soluţii simple. 
+Aici intervine învăţarea automată ce încearcă să aproximeze posibilul set de reguli, 
+prea complex pentru a fi definit, ce ar putea rezolva problema. Am putea spune că 
+această tehnică "învaţă" setul de reguli 
+din datele puse la dispoziţie, de unde şi denumirea. Evident, o aproximare 
+nu are cum să fie perfectă, dar este suficient de bună încât să scutească oamenii de 
+o mare parte din treabă. În cazul tranzacţiilor bancare, ce probabil sunt efectuate 
+în număr de sute de milioane pe zi, nu este greu de observat că verificarea manuală
+de către oameni este imposibilă, iar găsirea unui set simplu de reguli care să 
+le caracterizeze din nou este o problemă dificilă. Totuşi, învăţarea automată 
+ne poate ajuta să minimizăm fraudele ce trec nedetectate de la milioane la câteva zeci
+pe zi.
+
 \section{Caracterizarea anomaliilor nu este viabilă}
 
 Un exemplu ce ilustrează de ce obţinerea de informaţii
@@ -47,6 +72,11 @@ implică un cost aproape inexistent, să urmărim activitatea unui motor
 defini ce înseamnă o observaţie normală.
 
 \section{Aplicaţii ale detecţiei anomaliilor}
+
+În aproape toate domeniile apare problema semnalării unor fenomene sau evenimente 
+ieşite din comun ce necesită atenţia unei persoane pentru analiză. Mai jos prezentăm
+doar câteva din cazurile unde detecţia anomaliilor este necesară, cât şi ce ar 
+reprezenta o anomalie pentru fiecare:
 
 \begin{itemize}
     \item \textbf{Fraude financiare}: ne dorim să semnalăm comportamentul ciudat 
