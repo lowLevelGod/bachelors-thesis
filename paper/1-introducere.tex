@@ -17,6 +17,25 @@ comportă anormal şi astfel apar anomaliile.
 de oameni. Algoritmii de învăţare automată pot să semnaleze potenţialele
 abateri, dar în final, decizia rămâne a omului.
 
+De asemenea, caracteristicile anomaliilor depind de domeniul 
+unde acestea apar. Ce este considerat anomalie în domeniul 
+medical, va diferi aproape complet de domeniul finanțelor, 
+spre exemplu. 
+
+Mai mult, unele observaţii nici măcar nu 
+pot reprezenta comportament anormal în afara unui context 
+bine definit sau fără a apărea în prezența altor observaţii
+care adunate ar forma o anomalie. Un exemplu de comportament
+ce poate fi observat în traficul de date pe o rețea al unei 
+organizații ar fi 
+conectarea de la distanță pe un anumit calculator. Acest lucru
+se întâmplă regulat și nu poate ridica nicio suspiciune de 
+cele mai multe ori. Dar în combinație cu o oră târzie de 
+accesare, când probabil angajații nu mai sunt la lucru, 
+sau cu alte comenzi care sunt folosite succesiv pentru a 
+comite un atac cibernetic, o observaţie ce în general 
+este complet normală, acum prezintă caracteristici anormale.
+
 \section{Avantajele învăţării automate}
 
 Când sarcinile ce trebuie îndeplinite periodic, necesare bunei funcţionări a unei 
@@ -65,7 +84,16 @@ motor defect.
 Este evident că definirea anomaliei în acest context nu este viabilă, iar 
 cazul nu este singular. Tranzacţiile frauduloase ce constituie tema acestei lucrări 
 suferă de aceleaşi probleme, ba mai mult, nici măcar nu avem opţiunea de a 
-sabota intenţionat derularea normală a tranzacţiilor. În schimb, 
+sabota intenţionat derularea normală a tranzacţiilor. De asemenea,
+dacă anomaliile apar ca urmare a unor acțiuni cu caracter maliţios,
+atunci adversarii responsabili pentru acestea vor încerca să 
+evite mecanismele existente de detecţie prin schimbarea 
+frecventă a metodelor folosite. Prin urmare, ce era considerat
+comportament normal înainte, acum poate indica prezența unui 
+atac.
+
+
+În schimb, 
 este mult mai uşor şi cel mai probabil 
 implică un cost aproape inexistent, să urmărim activitatea unui motor 
 în stare bună de funcţionare şi să folosim datele respective pentru a 
@@ -96,6 +124,37 @@ reprezenta o anomalie pentru fiecare:
     poate include remarci jignitoare, precum comentariile rasiste sau xenofobe,
     astfel fiind de ajutor în moderarea materialului încărcat pe platforme. 
 \end{itemize}
+
+\section{Anomalii în tranzacţii bancare}
+
+Tranzacţiile fraudulente pot produce pagube financiare majore 
+atât instituțiilor responsabile de operaţiunile economice 
+efectuate prin intermediul lor, cât și celor care apelează
+la respectivele servicii. 
+
+Pe lângă prejudiciul material adus,
+fraudele nedetectate deteriorează și reputația băncilor 
+ce cad victimă acestui fenomen, iar pe termen lung acestea
+pot duce la pierderea potenţialilor clienți.
+
+De asemenea, în urma unor operaţiuni frauduloase ce nu au 
+fost prevenite, apar și tulburări ale activității economice
+desfășurate, deoarece trebuie investite resurse și timp 
+pentru investigarea și soluţionarea problemei. Alte costuri
+suplimentare ce mai pot apărea reprezintă procese juridice 
+îndreptate împotriva instituției financiare afectate, cât și 
+sancțiuni pentru nerespectarea normelor de siguranţă.
+
+Numai Marea Britanie a înregistrat pierderi de peste 1.2 
+miliarde de lire sterline în 2022 cu aproape 80\% din fraude
+originând din mediul online, conform \textit{UK Finance}
+\cite{uk-finance}.
+
+Prin urmare, este nevoie de o soluţie care să poată 
+preveni măcar o mare parte din tranzacţiile frauduloase dacă
+nu chiar pe toate și care să nu necesite verificarea manuală
+a unui om decât pentru un număr mic de evenimente.
+
 
 \section{Detecţia anomaliilor vs clasificare clasică}
 
