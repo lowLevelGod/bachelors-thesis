@@ -65,6 +65,29 @@ hipersfere} care să includă toate punctele din setul de date\cite{tax2004suppo
     \caption{Varianta Schölkopf et al în dreapta şi varianta Tax et al în stânga}
 \end{figure}
 
+\section{Caracteristici}
+
+One Class SVM ne ajută să transformăm un model de clasificare 
+cu mai multe clase, anume SVM, într-unul cu o singură clasă,
+păstrând abilitatea de a putea introduce neliniarități 
+cu ajutorul funcţiilor de kernel ce au fost studiate extensiv.
+Prin urmare, are majoritatea avantajelor celui din urmă, precum
+ușurința de a separa datele atunci când marginea este bine 
+definită, faptul că este relativ robust în spaţii cu 
+multe dimensiuni și că poate fi folosit chiar și dacă 
+numărul de caracteristici al punctelor din set este mai
+mare decât cardinalul setului.
+
+Totuşi, acest model devine imposibil de folosit pentru 
+seturi mari de date, complexitatea de timp lasă de dorit 
+la antrenare, iar găsirea hiperparametrilor optimi este 
+dificilă, atât din lipsa unor reguli stricte după care 
+să ne ghidăm, dar și din faptul că o căutare exhaustivă 
+ar dura prea mult din cauza complexității de timp ridicate 
+la antrenare. De asemenea, rezultatele date de acest model 
+nu pot fi ușor interpretate, deoarece ele reprezintă distanțe,
+nu probabilități.
+
 \subsection{Formularea matematică}
 
 Prima formulare ce implică un hiperplan de separare
@@ -152,6 +175,27 @@ Parametrii necesari sunt mediile şi covarianţele fiecărei componente.
     \caption{Anomaliile se află în afara distribuţiilor date de componentele Gaussiene}
 \end{figure}
 
+\section{Caracteristici}
+
+Gaussian Mixture Model este util pentru modelarea distribuţiilor 
+complexe și se descurcă bine chiar și când setul de date 
+este compus din mulțimi suprapuse de puncte, întrucât află 
+pentru fiecare componentă probabilitatea ca o observaţie
+să fie membra acesteia, deci chiar dacă un punct se află 
+în mai multe mulțimi, nu va fi repartizat doar în una singură.
+De asemenea, timpul de antrenare este redus chiar și pentru 
+seturi mari de date datorită tehnicii iterative de optimizare 
+utilizată.
+
+Din păcate, numărul de componente nu este ușor de ales 
+pentru a obține un model optim, iar performanţa algoritmului 
+depinde foarte mult de inițializarea parametrilor iniţiali, 
+ceea ce poate duce la imposibilitatea convergenței către optim.
+De asemenea, se presupune că datele pot fi modelate de o 
+combinație de distribuţii Gaussiane, dar dacă acest lucru 
+nu este adevărat, algoritmul nu va oferi rezultate bune.
+Un alt dezavantaj este vulnerabilitatea la blestemul 
+dimensionalității.
 
 \subsection{Formularea matematică}
 
@@ -201,6 +245,28 @@ distribuţiile obţinute mai sus si le împărţim la numărul total de puncte.
     \includegraphics[width=\linewidth]{images/KDEShowOff.pdf}
     \caption{Anomaliile sunt reprezentate de punctele roşii}
 \end{figure}
+
+\section{Caracteristici}
+
+Kernel Density Estimation are avantajul de a fi o metoda 
+neparametrică și care nu face nicio presupunere asupra 
+distribuţiei reale a datelor, ceea ce îl face flexibil 
+pentru diverse tipuri de date. De asemenea, rezultatele 
+sunt ușor de interpretat acestea fiind probabilități și 
+beneficiem de informație locală despre
+densitatea datelor în jurul fiecărui punct 
+din set, ceea ce ne ajută la găsirea regiunilor cu densitate ridicată 
+sau scăzută.
+
+Dezavantajele sunt găsirea dificilă a hiperparametrului 
+optim pentru 
+lăţime de bandă, complexitatea de timp crescută, în special 
+pentru seturi de date mari, vulnerabilitatea la blestemul 
+dimensionalității, dar și tendința de a atribui o densitate 
+ridicată punctelor din marginea setului de date, chiar 
+dacă distribuţia nu se mai întinde în direcția respectivă, 
+iar acest lucru poate duce la netezirea excesivă a marginilor 
+distribuţiei.
 
 \subsection{Formularea matematică}
 
