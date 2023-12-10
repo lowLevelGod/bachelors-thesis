@@ -24,20 +24,24 @@ imparţial modelele finale.
     \caption{Performanţa fiecărui model pe setul de testare}
 \end{table}
 
-Toate cele 3 modele au o performanţă similară, Gaussian Mixture Model fiind foarte puţin mai slab
-decât One Class SVM şi Kernel Density Estimation care sunt aproximativ egale din punct de vedere al
-metricilor de evaluare. Precision este scăzut şi prin urmare şi 
+Cele 2 modele care au o performanţă similară sunt Gaussian Mixture Model și One Class SVM,
+ultimul fiind foarte puţin mai slab decât cel din urmă, dar cu un timp de antrenare 
+mult mai mare. Kernel Density Estimation este de departe un model nepotrivit 
+pentru acest set de date, necesitând un timp crescut de antrenare pentru 
+niște rezultate mediocre. 
+
+Precision este scăzut şi prin urmare şi 
 f1 score este scăzut. În schimb, recall are o valoare ridicată pentru toate modelele. Acest 
 fapt ne arată că detectăm aproape toate anomaliile, dar în acelaşi timp, semnalăm un număr 
 mare de tranzacţii obişnuite ca fiind frauduloase. Acest lucru poate deveni un inconvenient 
 pentru client în cazul în care tranzacţia este anulată ca urmare a raportării incorecte.
 
-One class SVM este modelul cu valorile cele mai mari pentru toate metricile, dar este 
-şi un model mai complex faţă de celelalte 2 tehnici clasice de estimare a densităţii. Totuşi, 
-este de menţionat faptul că modelul de Gaussian Mixture Model a necesitat doar 3 minute pentru
+Gaussian Mixture Model este modelul cu valorile cele mai mari pentru toate metricile, chiar dacă nu este 
+un model la fel de complex precum celelalte 2 tehnici nesupervizate. De asemenea, 
+acesta a necesitat doar 3 minute pentru
 antrenare şi prezicere a etichetelor, dar a produs rezultate aproape la fel de bune precum
-One class SVM şi Kernel Density Estimation care au avut nevoie de mai mult de o oră şi jumătate,
-respectiv 4 ore şi jumătate, cel din urmă neavând o performanţă cu mult mai ridicată în raport 
+One class SVM şi mult mai bune decât Kernel Density Estimation care au avut nevoie de mai mult de o oră şi jumătate,
+respectiv 40 minute, cel din urmă neavând o performanţă cu mult mai ridicată în raport 
 cu complexitatea de timp.
 
 Ilustrăm şi ROC Curve alături de metrica AUC pentru modelele finale. Cu cât graficul 

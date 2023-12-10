@@ -215,13 +215,13 @@ $\nu \in \{0.05, 0.1, 0.3, 0.5, 0.7, 0.9\}$.
 \end{table}
 
 Se observă că $\gamma$ este parametrul care aduce schimbările drastice în valorile 
-metricilor, pe când $\nu$ doar creşte relativ puţin aceste valori. Accuracy şi f1 score 
-tind să crească simultan, în timp ce precision şi recall tind să aibă valori 
+metricilor, pe când $\nu$ doar creşte sau scade relativ puţin aceste valori. Accuracy şi f1 score 
+nu sunt neapărat corelate, în timp ce precision şi recall tind să aibă valori 
 divergente.
 
-Urmărim accuracy împreună cu f1 score, acestea fiind metricile ce evaluează modelul oarecum 
+Urmărim f1 score, aceasta fiind metrica ce evaluează modelul oarecum 
 echilibrat, în contrast cu precision şi recall care favorează minimizarea fals pozitivelor, 
-respectiv a fals negativelor. Astfel, alegem $\gamma=0.03$ şi $\nu=0.5$ pentru modelul final.
+respectiv a fals negativelor. Astfel, alegem $\gamma=0.01$ şi $\nu=0.001$ pentru modelul final.
 
 \begin{figure}[p] % Use a separate page for the figure
     \begin{minipage}[t]{0.5\textwidth}
@@ -292,7 +292,11 @@ respectiv a fals negativelor. Astfel, alegem $\gamma=0.03$ şi $\nu=0.5$ pentru 
 
 Pentru acest model, hiperparametrul optim 
 căutat este numărul de componente Gaussiene $n$. Vom încerca pe rând fiecare valoare
-din $\{1, 2, 3, \ldots, 16, 17\}$.
+din $\{1, 2, 3, \ldots, 16, 17\}$. De asemenea, pentru că modelul 
+ne va oferi probabilitățile de apartenență a unui punct pentru 
+fiecare componentă, vom avea nevoie și de un prag pentru a decide 
+dacă punctul este sau nu anomalie. Ne vom folosi de cuantile 
+calculate pe setul de validare pentru a găsi pragul optim.
 
 Pentru $n=1$ putem afla parametrii foarte eficient folosind 
 \textbf{Maximum Likelihood Estimation}, întrucât problema 
@@ -307,16 +311,19 @@ Gaussian Mixture Model încearcă să estimeze o distribuţie posibil multimodal
 folosind mai multe componente Gaussiene. Prin urmare, numărul optim de componente
 ne indică intuitiv numărul de \textbf{moduri} pe care le are distribuţia ce a generat 
 setul de date.
-Se observă că modelul performează destul de bine chiar şi cu o singură componentă. 
+Se observă că modelul se descurcă destul de bine chiar şi cu o singură componentă. 
 Aceasta ne indică faptul ca distribuţia ce a generat setul de date este 
 similară cu una Gaussiană.
 
-Pentru acest model, toate cele 4 metrici par să evolueze aproximativ la fel, după cum se
-observă şi pe grafice. Valorile cresc şi scad aproape simultan. Totuşi, varianţa rezultatelor
-nu este prea mare, acestea fiind incluse într-un interval restrâns încă de la primele valori, 
-aşa cum am menţionat şi mai sus. Dată simplitatea modelului, rezultatele sunt impresionante.
+Pentru acest model, pragul este foarte important. Dacă avem acelaşi prag,
+dar număr de componente diferite, varianţa rezultatelor
+nu este prea mare, dar dacă alegem greșit valoarea cuantilei, 
+performanţa modelului are de suferit. Totuşi, 
+dată simplitatea modelului, rezultatele sunt impresionante.
+Cu un timp de antrenare de sub câteva minute, obține rezultate 
+mai bune decât One Class SVM pe setul de validare.
 
-Alegem \textbf{numărul de componente $n=10$} pentru modelul final, chiar dacă 
+Alegem \textbf{numărul de componente $n=6$} pentru modelul final, chiar dacă 
 am avut rezultate bune şi cu $n=1$ deoarece ne dorim un model puţin mai complex 
 decât o banală distribuţie Gaussiană. În practică, este o şansă mică să dăm peste 
 un proces care să genereze date fix în acest mod. De asemenea, aici f1 score are valoarea cea mai mare
@@ -382,7 +389,10 @@ per total.
 \end{table}
 
 Folosim \textbf{kernelul Gaussian}, fiind cel mai des întâlnit în practică
-datorită numeroaselor proprietăţi utile pe care le deţine.
+datorită numeroaselor proprietăţi utile pe care le deţine. De asemenea, trebuie 
+să impunem un prag după care să decidem daca un punct este sau nu anomalie. 
+Vom alege cuantile luate pe setul de validare, precum în cazul 
+Gaussian Mixture Model.
 
 Lăţimea de bandă este cea care stă la baza \textbf{bias-variance tradeoff} 
 în acest model.
@@ -394,14 +404,19 @@ aflate la distanţă mare joacă un rol important. În cel mai rău caz, o distr
 multimodală ajunge sa fie estimată ca una unimodală din cauza netezimii graficului.
 
 La fel ca în cazul One Class SVM, precision şi recall evoluează puternic
-divergent, după cum reiese şi din grafice, în timp ce accuracy şi f1 score cresc în acelaşi 
-ritm. Recall are valori foarte mari, dar precision are valori foarte mici, ceea ce ne indică
-un număr enorm de fals pozitive, dar un număr modest de fals negative.
-Se observă că după $5.0$, valoarea lăţimii de banda nu mai aduce îmbunătăţiri 
-semnificative. Acest lucru este ilustrat pe grafic sub forma unui plafon al funcţiei.
+divergent, după cum reiese şi din grafice. 
+Se observă că după $1.0$, valoarea lăţimii de banda nu mai aduce îmbunătăţiri 
+semnificative. Acest lucru este ilustrat și pe grafic sub forma unui maxim local 
+pentru f1 score. La fel ca în cazul Gaussian Mixture Model, cuantila 
+folosită are un puternic impact asupra performanţei modelului.
 
-Alegem \textbf{lăţimea de bandă} $bandwidth=5.0$ pentru modelul final deoarece are cele mai bune 
-valori pentru accuracy şi f1 score. De asemenea, aceasta este şi cea mai mică valoare 
+Din păcate, după un timp de antrenare ce depășește 40 minute, 
+timp ce se află între valorile pentru OCSVM și GMM, nu obținem 
+rezultate mai bune decât niciunul dintre modelele precedente
+pe setul de validare. 
+
+Alegem \textbf{lăţimea de bandă} $bandwidth=1.0$ pentru modelul final deoarece are cea
+mai bună valoare pentru f1 score. De asemenea, aceasta este şi cea mai mică valoare 
 care aduce o performanţă decentă. O valoare prea mare a lăţimii de banda duce 
 la o netezire excesivă a particularităţilor distribuţiei.
 
