@@ -1,6 +1,53 @@
 \chapter{Introducere}
 
+\section{Inteligenţa artificială}
+
+Este un domeniu de studiu din Informatică, discutat încă din prima jumătate a 
+secolului al XX-lea, dar care a devenit popular abia la finalul secolului menţionat 
+anterior.
+
+Aceasta are ca scop simularea inteligenţei umane folosind diverşi algoritmi şi 
+structuri de date. Există mai multe arii de cercetare în acest domeniu, precum: 
+raţionamentul, reprezentarea cunoştinţelor, planificarea, procesarea limbajului 
+natural, cât şi învăţarea automată care va fi prezentată detaliat în această lucrare.
+Totuşi, obiectivul pe termen lung al cercetătorilor este de a simula inteligenţa 
+generală, nu doar părţi specifice din aceasta.
+
+Popularitatea acesteia a început să crească odată cu mărirea spaţiului de stocare,
+a puterii de procesare, cât şi cu faptul că sistemele de calcul au devenit mai 
+accesibile. 
+
+De asemenea, deşi algoritmii existenţi nu s-au mai îmbunătăţit 
+semnificativ, accesul la o cantitate enormă de date în ziua de astăzi, anume 
+fenomenul "Big Data", a oferit un sprijin considerabil pentru performanţa 
+învăţării inteligenţei artificiale\cite{ai-history}.
+
+În acest domeniu, datele colectate, cât şi calitatea lor au un rol extrem de important.
+Oricât de bun ar fi algoritmul propus, în lipsa unor date reprezentative pentru 
+problema ce trebuie rezolvată, performanţa va fi îndoielnică. Putem spune că datele 
+sunt cele care introduc particularităţile din lumea reală în spaţiul teoretic 
+al inteligenţei artificiale.
+
+Prin urmare, se observă că aplicabilitatea inteligenţei artificiale 
+a fost împiedicată în principal de considerente practice, nu neapărat teoretice.
+
+Printre succesele recente din domeniu se remarcă AlphaFold, un model 
+inventat de DeepMind care prezice structura proteinelor din secvenţele 
+de amino acizi, GPT-3 al OpenAI ce poate genera text care să răspundă la 
+întrebările utilizatorilor aproape ca o fiinţă umană, dar şi algoritmii 
+pentru maşini autonome dezvoltaţi de cei de la Tesla.
+
+Utilizarea inteligenţei artificiale poate reduce costurile asociate 
+sarcinilor ce ar necesita efortul unei persoane, dar de multe ori apare şi 
+problema eticii, precum în cazul înlocuirii recrutorilor cu un program 
+ce selectează candidaţii pentru un loc de muncă în funcţie de anumite 
+criterii care nu ar fi întocmai corespunzătoare.
+
+Automatizarea detecţiei anomaliior reprezintă una din posibilele aplicaţii
+ale inteligenţei artificiale, subiect ce va fi abordat în această lucrare.
+
 \section{Definiţia anomaliilor}
+
 
 O \textbf{anomalie} este o entitate ce diferă semnificativ de restul enităţilor din 
 setul de date. Definiţia lui Hawkins este urmatoarea\cite{hawkins1980identification}:
@@ -35,6 +82,12 @@ accesare, când probabil angajații nu mai sunt la lucru,
 sau cu alte comenzi care sunt folosite succesiv pentru a 
 comite un atac cibernetic, o observaţie ce în general 
 este complet normală, acum prezintă caracteristici anormale.
+
+Prin urmare, se observă că decizia de a eticheta o observaţie ca fiind anomalie 
+sau nu este una dificilă chiar şi pentru un om, iar în combinație cu faptul 
+că obţinerea de date ce ar putea fi anormale este de cele mai multe ori costisitoare,
+face ca evaluarea sistemelor de detecţie să devină una problematică.
+
 
 \section{Avantajele învăţării automate}
 
@@ -110,19 +163,19 @@ reprezenta o anomalie pentru fiecare:
     \item \textbf{Fraude financiare}: ne dorim să semnalăm comportamentul ciudat 
     observat într-o serie de tranzacţii, precum activitatea generată de 
     o persoana care foloseşte cardul de credit al altei persoane în mod 
-    neautorizat. Această aplicaţie constituie şi obiectul lucrării noastre.
+    neautorizat. Această aplicaţie constituie şi obiectul lucrării noastre\cite{financial-fraud}.
     \item \textbf{Intruziune în reţele de calculatoare}: vrem să semnalăm activitatea
     neobişnuită ce poate indica un potenţial atac cibernetic sau accesul 
-    neautorizat al unui terţ maliţios.
+    neautorizat al unui terţ maliţios\cite{network-traffic}.
     \item \textbf{Controlul calităţii în manufactură}: suntem interesaţi să monitorizăm 
     procesul de producţie pentru a raporta eventualele defecţiuni ce ar afecta 
-    calitatea produsului.
+    calitatea produsului\cite{quality-control}.
     \item \textbf{Domeniul medical}: vrem să identificăm anomalii în analizele de sânge, 
     semnele vitale sau imaginile medicale ale pacientului pentru a depista şi preveni
-    anumite afecţiuni.
+    anumite afecţiuni\cite{medical-images}.
     \item \textbf{Reţele sociale}: ne dorim să raportăm automat conţinutul postat ce 
     poate include remarci jignitoare, precum comentariile rasiste sau xenofobe,
-    astfel fiind de ajutor în moderarea materialului încărcat pe platforme. 
+    astfel fiind de ajutor în moderarea materialului încărcat pe platforme\cite{social-media}. 
 \end{itemize}
 
 \section{Anomalii în tranzacţii bancare}
@@ -173,6 +226,20 @@ Prin urmare, este mult mai uşor să modelăm problema în jurul unei singure cl
 de referință, decât să încercăm definirea unei clase adiţionale ce de fapt 
 este compusă dintr-o multitudine de subclase necunoscute.
 
+De asemenea, problemele de clasificare de cele mai multe ori presupun 
+accesul la etichetele asociate fiecărei observaţii, deci metodele 
+supervizate sunt cele mai potrivite aici. Totuşi, și dacă setul de date 
+este etichetat, lucru ce se întâmplă în cel mai bun caz, un clasificator 
+clasic ar avea o performanță slabă pentru problema detecției anomaliilor
+din cauza dificultății modelării claselor, după cum am menționat și mai sus.
+
+De cele mai multe ori nu vom avea etichetele datelor colectate, sau 
+cel puțin nu un număr suficient de mare, 
+pentru detecţia anomaliilor, așa că apare nevoia metodelor nesupervizate. 
+În realitate, totuşi, este posibil ca în timp să acumulăm măcar câteva etichete, chiar 
+dacă la început soluţia este pur nesupervizată, pe care le putem 
+exploata folosind metode semi-supervizate care în general au o performanță 
+mai bună decât cele menționate anterior.
 
 \subsection{Scopul detecţiei anomaliilor}
 
@@ -205,3 +272,56 @@ trăsături definitorii, precum mustăţile. Vrem să detectăm la fel de bine a
 pe când într-o problemă clasică de detecţie a anomaliilor, precum identificarea 
 tranzacţiilor frauduloase, vrem preponderent să nu ratăm evenimentele cu 
 caracter maliţios.
+
+\section{Probleme conexe pentru detecţia anomaliilor}
+
+\subsection{Outlier detection}
+
+\textbf{Outlier detection} are scopul de a identifica observaţii fie noi,
+fie previzibile, din setul de antrenare, care deviază de la 
+comportamentul normal. 
+\textbf{Outliers} pot fi valori extreme, erori cauzate 
+de zgomot, posibil din instrumentele de măsură sau senzorii folosiţi 
+pentru colectarea datelor, sau comportament anormal.
+
+Această abordare este utilă atunci când avem un set de date \textbf{"poluat"} cu 
+observaţii anormale şi ne dorim să extragem din el doar porţiunea ce conţine 
+observaţii deviante. De asemenea, se poate folosi atât pe seturi adnotate, cât 
+şi pe seturi fără etichete.
+
+\subsection{Novelty detection}
+
+\textbf{Novelty detection} are scopul de a identifica observaţii noi 
+ce diferă semnificativ de datele de antrenare care au rolul de a 
+caracteriza cât mai bine clasa normală. Din acest motiv, este foarte 
+important ca setul de antrenare să nu conţină
+decât date normale pentru a putea identifica caracteristicile clasei de referință,
+astfel modelând comportamentul normal.
+
+Prin urmare, această abordare este utilă atunci cand avem un 
+set de date \textbf{"curat"} (fără 
+anomalii) şi ne aşteptăm ca observaţiile noi să fie rare şi să aibă trăsături
+distincte faţă de setul de antrenare. De asemenea, se presupune că datele sunt adnotate 
+pentru a putea extrage punctele cu eticheta normală şi să le folosim la antrenare.
+
+\textbf{Novelty detection} este problema pe care o vom studia detaliat în 
+această lucrare.
+
+\subsection{Change detection}
+
+\textbf{Change detection} este folosit atunci când dorim să găsim anomalii 
+într-o serie de timp, anume să analizăm dacă 
+comportamentul seriei se schimbă semnificativ. De obicei, suntem interesați 
+ori doar să aflăm dacă o schimbare a apărut, ori să aflăm pozițiile 
+în timp unde schimbările respective au avut loc.
+
+Aici se remarcă 2 categorii, \textbf{offline}, 
+unde presupunem că avem la dispoziţie 
+o serie de timp de lungime finită pe care o analizăm cu scopul de a 
+detecta puncte anormale, și \textbf{online}, unde avem un flux de date din 
+care vrem să extragem, în timp real, punctele problematice. Deși este probabil 
+impropriu, putem considera pentru seriile de timp, intuitiv, că outlier detection este similar 
+cu cazul offline din change detection, iar novelty detection este asemănător 
+cu cel online din această problemă.
+
+În această lucrare, nu vom aborda problema change detection.

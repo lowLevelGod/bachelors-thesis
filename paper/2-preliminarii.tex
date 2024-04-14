@@ -3,9 +3,22 @@
 \section{Tipuri de învăţare automată}
 
 Există numeroase tipuri de învăţare automată, aşa că le vom prezenta doar 
-pe cele relevante lucrării noastre.
+pe cele relevante lucrării noastre. De asemenea, notațiile pentru setul de 
+date introduse în această secțiune vor fi folosite și în restul lucrării.
 
 \subsection{Supervizată}
+
+Formal, avem un set de date cu $N$ elemente, sub formă de perechi:
+
+\begin{equation}
+    S = \{(x_{1}, y_{1}), (x_{2}, y_{2}), \dots, (x_{N}, y_{N})\}
+\end{equation}
+
+unde observaţiile $x_{i} \in \mathbb{R} ^ d$ și etichetele 
+$y_{i} \in \mathbb{R}$ sau $y_{i} \in \{0, 1\}$. 
+Problema se reduce la 
+aproximarea cât mai bună a etichetei $y_{N + 1}$ pentru o observaţie nouă 
+$x_{N + 1}$.
 
 Învăţarea \textbf{supervizată} poartă acest nume deoarece necesită supraveghere 
 umană pentru a putea funcţiona. Un specialist în ştiinţa datelor trebuie 
@@ -17,6 +30,17 @@ Această metodă este folosită în probleme de clasificare sau de prezicere
 a unor fenomene.
 
 \subsection{Nesupervizată}
+
+Formal, avem un set de date cu $N$ elemente:
+
+\begin{equation}
+    S = \{x_{1}, x_{2}, \dots, x_{N}\}
+\end{equation}
+
+unde observaţiile $x_{i} \in \mathbb{R} ^ d$, dar nu mai apar etichetele
+$y_{i}$.
+În lipsa etichetelor, problema generalizată nu mai poate fi descrisă la fel 
+de ușor.
 
 Învăţarea \textbf{nesupervizată} este opusul celei supervizate, deci implică faptul 
 că interacţiunea umană nu este necesară în pregătirea setului de date. Cu toate 
@@ -31,6 +55,23 @@ iniţială a datelor.
 Toţi algoritmii din această lucrare aparţin acestei metode de învăţare automată.
 
 \subsection{Semi-supervizată}
+
+Formal, avem un set de date cu $N$ elemente, partiționat în 2 mulțimi cu $N_{1}$ elemente sub formă de perechi, 
+respectiv $N_{2}$ elemente:
+
+\begin{equation}
+    S_{1} = \{(x_{1}, y_{1}), (x_{2}, y_{2}), \dots, (x_{N_{1}}, y_{N_{1}})\}
+\end{equation}
+
+\begin{equation}
+    S_{2} = \{x_{1}, x_{2}, \dots, x_{N_{2}}\}
+\end{equation}
+
+unde observaţiile $x_{i} \in \mathbb{R} ^ d$ și etichetele 
+$y_{i} \in \mathbb{R}$ sau $y_{i} \in \{0, 1\}$. 
+La fel ca în cazul supervizat, problema este în general
+aproximarea cât mai bună a etichetei $y_{N + 1}$ pentru o observaţie nouă 
+$x_{N + 1}$.
 
 Învăţarea  \textbf{semi-supervizată} 
 îmbină ambele paradigme prezentate anterior, astfel
@@ -61,7 +102,7 @@ hipersfere} care să includă toate punctele din setul de date\cite{tax2004suppo
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{images/Hyperplane-Hypersphere.pdf}
+    \includegraphics[width=\linewidth]{images/cvx_ocsvm_figures.pdf}
     \caption{Varianta Schölkopf et al în dreapta şi varianta Tax et al în stânga}
 \end{figure}
 
@@ -137,7 +178,7 @@ A doua formulare ce implică găsirea hipersferei minime
 
     \begin{equation}
         \begin{aligned}
-        & \underset{R, \rho, \xi}{\text{min}}
+        & \underset{R, c, \xi}{\text{min}}
         & & R^2 + \frac{1}{\nu n} \sum_{i=1}^{n} \xi_i \\
         & \text{cu constrângerea}
         & & \|\phi(x_i) - c\|^2 \leq R^2 + \xi_i, \quad i=1,2,\ldots,n \\
@@ -149,7 +190,46 @@ A doua formulare ce implică găsirea hipersferei minime
         \item $R$ este raza hipersferei
         \item $c$ este centrul hipersferei
         \end{itemize}
+      
         
+\subsection{Tehnici de optimizare}
+
+Toate funcțiile prezentate mai sus sunt convexe, iar constrângerile 
+lor sunt mulțimi convexe. Chiar
+și prima constrângere din formularea cu hipersferă
+care conține un termen la pătrat în dreapta 
+inegalității poate fi redusă la o constrângere liniară
+introducând o nouă variabilă $R_2 = R ^ 2$ cu constrângerea 
+$R_2 >= 0$.
+
+Deci știm că problemele de optimizare
+sunt convexe și astfel avem garanția unui unic minim global. 
+Prin urmare, putem folosi 
+tehnicile populare de optimizare convexă.
+
+O metodă des întâlnită de ordinul întâi este coborârea pe gradient ce este 
+avantajoasă atunci când setul de  antrenare este mare, întrucât 
+complexitatea algoritmului nu depinde de mărimea setului de date.
+Totuşi, această tehnică întâmpină dificultăţi la optimizarea funcţiilor 
+cu constrângeri. Există modificări ale tehnicii de bază, precum coborârea pe 
+gradient proiectată care poate lucra şi cu constrângeri liniare simple sau 
+algoritmul Pegasos\cite{Pegasos} care poate rezolva varianta primitivă a primei forme prezentate 
+mai sus, dar pentru formulările complexe nu se poate aplica această metodă.
+
+În majoritatea cazurilor, un alt kernel decât cel liniar va fi folosit, şi prin urmare 
+vor apărea următoarele dificultăţi: calcularea valorilor funcţiei kernel este 
+o operaţie costisitoare, calcularea matricei kernel este de cele mai multe ori 
+inutilă, întrucât ne interesează doar calculele ce implică un vector suport, şi 
+matricea kernel de cele mai multe ori nu va încăpea în memorie din cauza 
+numărului excesiv de exemple de antrenare, având în vedere că dimensiunea ei 
+este de $N\times N$\cite{SVM-solvers}.
+
+Astfel, apare nevoia unor algoritmi specializaţi. Cel mai popular dintre ei 
+este SMO\cite{SMO} care foloseşte tehnici de programare pătratică şi care utilizează 
+o descompunere în 
+subprobleme mai mici ce pot fi rezolvate eficient şi care încap în memorie.
+O implementare a acestei metode se poate găsi în biblioteca LIBSVM\cite{LIBSVM}.
+
 
 \section{Gaussian Mixture Model}
 
@@ -167,12 +247,21 @@ Algoritmul încearcă să estimeze funcţia densitate de probabilitate
 din care au fost generate datele folosind 
 \textbf{mai multe distribuţii Gaussiene}.
 Astfel, putem modela distribuţii multimodale utilizând o distribuţie bine cunoscută.
-Parametrii necesari sunt mediile şi covarianţele fiecărei componente.
+Parametrii necesari sunt mediile, matricele de 
+covarianţă și ponderile fiecărei componente.
+
+Metoda este similară cu \textbf{k-means}, întrucât ambele folosesc 
+măsuri de similaritate pentru a crea grupuri
+ce modelează datele. Totuşi, față de k-means,
+Gaussian Mixture Model permite unui punct să aparțină 
+mai multor grupuri, oferind probabilități pentru fiecare,
+și poate modela chiar și seturi de date complexe 
+cu margini de decizie neliniare.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{images/Anomaly-detection-with-Gaussian-mixture-models.pdf}
-    \caption{Anomaliile se află în afara distribuţiilor date de componentele Gaussiene}
+    \includegraphics[width=\linewidth]{images/gmm_anomalies.pdf}
+    \caption{Detecţia anomaliilor cu 5 componente Gaussiene}
 \end{figure}
 
 \section{Caracteristici}
@@ -194,29 +283,89 @@ ceea ce poate duce la imposibilitatea convergenței către optim.
 De asemenea, se presupune că datele pot fi modelate de o 
 combinație de distribuţii Gaussiane, dar dacă acest lucru 
 nu este adevărat, algoritmul nu va oferi rezultate bune.
+
+Pentru reducerea numărului de parametri ce trebuie învățați,
+se poate face presupunerea că caracteristicile datelor 
+sunt independente unele de altele. Acest lucru este 
+echivalent cu presupunerea că valorile ce nu se află 
+pe diagonala principală a matricelor de covarianţă
+pot fi considerate 0, dar în practică, datele pot 
+fi corelate de-a lungul diferitelor dimensiuni, ceea 
+ce ar conduce la învăţarea unui număr de $d^2$ parametri 
+pentru fiecare componentă, unde $d$ este dimensiunea unui punct.
+Acest lucru ar putea duce la overfitting când setul de date 
+este mic\cite{aggarwal2017outlier}.
 Un alt dezavantaj este vulnerabilitatea la blestemul 
 dimensionalității.
 
 \subsection{Formularea matematică}
 
-Funcţia densitate de probabilitate estimată este dată de 
+Funcţia densitate de probabilitate estimată este dată de
 
 \begin{equation}
-    \text{p}(x) = 1 - \prod_{i=1}^{K} \left(1 - \mathcal{N}(x|\mu_i, \Sigma_i)\right)
+    \text{p}(x) = \sum_{i=1}^{K} \phi_i \mathcal{N}(x|\mu_i, \Sigma_i)
 \end{equation}
-    
+
 \begin{itemize}
     \item $K$ este numărul de componente Gaussiene
     \item $\mathcal{N}(x | \mu_i, \Sigma_i)$ este distribuţia Gaussiană
     cu medie $\mu_i$ şi matrice de covarianţă $\Sigma_i$
+    \item $\phi_i$ este ponderea componentei $i$
+\end{itemize}
 
-Parametrii $\theta$ sunt de obicei învăţaţi din setul de date folosind 
-tehnici precum algoritmul Expectation-Maximization (EM).
+Totuşi, pentru a detecta anomalii avem nevoie de 
+
+\begin{equation}
+    p'(x) = 1 - \prod_{i=1}^{K} \left(1 - p_k(x)\right)
+\end{equation}
+    
+\begin{itemize}
+    \item $p_k(x)$ este probabilitatea ca punctul $x$ să 
+    aparțină componentei $k$
 \end{itemize}
 
 Această formulă ne indică probabilitatea ca un punct să fi fost generat de oricare 
 dintre componentele Gaussiene implicate. Deci, o valoare cât mai mică sugerează 
 o şansă mare ca punctul să fie anomalie.
+
+\subsection{Tehnici de optimizare}
+
+Pentru Gaussian Mixture Model nu se poate găsi nicio 
+soluție în formă închisă din cauza faptului că 
+valorile optime ale parametrilor depind de probabilitatea 
+datelor de a aparține fiecărei componente, dar în același 
+timp, calcularea acestor probabilități depinde de 
+parametrii optimi.
+
+Prin umare, este nevoie de o soluție iterativă care 
+aproximează alternativ valorile căutate mai sus.
+Cea mai populară metodă este algoritmul 
+\textbf{Expectation-Maximization} (EM). Acesta este compus din 
+2 pași care sunt repetați până când eroarea față de 
+soluția optimă scade sub un anumit prag. La pasul $E$,
+folosim valorile actuale ale parametrilor pentru a 
+calcula probabilitatea că un punct a fost generat 
+de o anumită componentă, făcând acest lucru pentru 
+toate punctele și toate componentele. La pasul $M$,
+utilizăm probabilităţile calculate la pasul $E$ 
+pentru a estima valorile parametrilor optimi 
+cu metoda \textbf{Maximum Likelihood Estimation} care caută 
+să maximizeze probabilitatea de observare a datelor 
+sub un anumit model statistic.
+
+Numărul de componente poate fi ales ori folosind anumite 
+criterii, precum \textbf{Bayesian information criterion} 
+și \textbf{Akaike information criterion}, 
+ori folosind cunoștințe 
+din domeniul problemei.
+
+Pentru inițializarea parametrilor se poate folosi 
+algoritmul k-means. Acesta ne va da direct valori 
+inițiale pentru mediile grupurilor. Pentru matricele 
+de covarianţă putem folosi covarianţele calculate 
+pentru punctele din fiecare grup, iar pentru ponderi 
+vom folosi proporția de puncte din setul de date
+aparținând fiecărui grup\cite{EM-GMM-INIT}.
 
 \section{Kernel Density Estimation}
 
@@ -232,6 +381,19 @@ este aproximată prin adunarea tuturor rezultatelor precedente. Procesul este si
 aflării ariei de sub graficul unei funcţii cu ajutorul unei integrale ce 
 apare dintr-o sumă de valori ale funcţiei într-o infinitate de puncte.
 
+Altă tehnică similară de estimare a funcţiei densitate de 
+probabilitate este cea a \textbf{histogramelor}
+care se bazează
+pe discretizarea datelor în coșuri de mărime fixă. 
+Totuși, acest lucru irosește informația despre 
+locațiile individuale ale punctelor, înlocuindu-le 
+cu intervale ce corespund mai multor puncte. 
+Astfel, graficul funcţiei va deveni discontinuu și 
+constant pe fiecare interval. Kernel Density Estimation 
+produce un grafic neted de cele mai multe ori și 
+oferă o reprezentare mai bună a distribuției unei variabile 
+continue\cite{KDE_paper}.
+
 Un parametru numit \textbf{"lăţime de bandă"} influenţează netezimea distribuţiei 
 rezultate.
 Cel mai des utilizat kernel este cel Gaussian şi pe acesta îl vom folosi şi noi.
@@ -242,7 +404,7 @@ distribuţiile obţinute mai sus si le împărţim la numărul total de puncte.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{images/KDEShowOff.pdf}
+    \includegraphics[width=\linewidth]{images/kde_anomalies.pdf}
     \caption{Anomaliile sunt reprezentate de punctele roşii}
 \end{figure}
 
@@ -281,6 +443,47 @@ Densitatea estimată de kernel într-un punct $x$ este dată de
     \item $h$ este lăţimea de bandă
     \item $K(u)$ este funcţia kernel 
 \end{itemize}
+
+\subsection{Tehnici de optimizare}
+
+Kernel Density Estimation este un model din familia celor care 
+se bazează pe utilizarea unui număr finit 
+dintre cei mai apropiaţi vecini ai unui punct pentru a lua 
+o decizie. Pentru a cuantifica cât de apropiate sunt 2 puncte, 
+se pot folosi oricare dintre metricile populare, precum distanța 
+euclidiană, sau funcţiile kernel în cazul acestui model, spre exemplu.
+
+Apartenenţa la această familie de algoritmi implică nevoia de a memora
+setul de date pe care este antrenat, etapa de învăţare, practic, nefiind 
+existentă. Totuşi, o abordare cu forţă brută ar necesita calcularea 
+funcţiei kernel între toate perechile de puncte memorate şi cele pentru 
+care dorim să aflăm densitatea de probabilitate, adică o complexitate de timp 
+de $O(NM)$, unde $N$ este numărul de puncte de antrenare şi $M$ este numărul de puncte 
+evaluate.
+
+O îmbunătăţire ar putea fi utilizarea unei structuri de date ce oferă 
+căutari rapide ale punctelor într-un anumit spaţiu, precum \textbf{KD Trees} 
+şi \textbf{Ball trees}, aceasta din urmă fiind adesea utilizată pentru date cu 
+dimensiuni $d < 20$. Pentru seturi de date mici sau pentru cazurile în care 
+ne dorim să evaluăm un număr $M$ mic de puncte, este mai util să folosim forţa 
+brută, întrucât crearea arborilor din KD Trees şi Ball trees 
+poate dura mai mult decât simpla calculare a funcţiei kernel între toate 
+perechile. În restul cazurilor însă, timpul de preprocesare devine amortizat 
+de evaluările ce se pot face în timp $O(M\log(N))$. Implementări pentru 
+aceste structuri de date se găsesc în biblioteca scikit-learn\cite{scikit-learn}.
+
+Pentru acest model nu este prea relevantă funcţia kernel aleasă, 
+hiperparametrul $h$ fiind cel care influenţează mai mult performanţa.
+
+Metodele 
+prezentate mai sus pot estima funcţia de densitate probabilitate doar 
+pentru un singur $h$. Dacă dorim să testăm performanţa pe mai multe valori $h$, 
+trebuie să rulăm acei algoritmi de mai multe ori. Acest lucru va duce la o perioadă 
+mult prea mare de căutare a hiperparametrului. 
+
+Astfel, a apărut şi o variantă generalizată a modelelor ce foloseau un 
+$h$ fix, menită să scadă timpul de căutare a valorii optime pentru lăţimea 
+de bandă\cite{Rapid-KDE}.
 
 \section{Metrici de performanţă}
 
@@ -382,22 +585,37 @@ este mai mare, cu atât modelul este mai bun.
 
 \subsection{Micro average vs Macro average}
 
+Aceste 2 tehnici pot fi folosite și în cazul clasificării cu 2 clase, dar 
+ele au apărut în principal pentru a servi ca generalizare a metricilor 
+clasice de performanţă care de unele singure tratează 
+doar cazul \textbf{One-versus-All}, anume 
+când considerăm că există doar 2 clase,
+una care conține clasa țintă și una care 
+conține toate celelalte clase diferite de cea din urmă. Astfel, putem 
+combina măsurile de evaluare deja existente pentru a obține 
+rezultate relevante în cazul general.
+
 Nu există o singură metodă de evaluare a modelelor care să fie potrivită în toate 
 cazurile. În schimb, metodele sunt alese astfel încât să reflecte cât mai bine 
 nevoile problemei.
 
 \textbf{Macro} average pentru o măsură de evaluare are forma:
 
-$$B_{macro}=\frac{1}{q} \sum_{\lambda=1}^{q} B(tp_{\lambda}, tn_{\lambda}, fp_{\lambda},
-fn_{\lambda})$$
+\begin{equation}
+    B_{macro}=\frac{1}{q} \sum_{\lambda=1}^{q} B(tp_{\lambda}, tn_{\lambda}, fp_{\lambda},
+fn_{\lambda})
+\end{equation}
 
 \textbf{Micro} average pentru o măsură de evaluare are forma:
 
-$$B_{micro}=B(\sum_{\lambda=1}^{q} tp_{\lambda}, \sum_{\lambda=1}^{q} tn_{\lambda}, 
-\sum_{\lambda=1}^{q} fp_{\lambda}, \sum_{\lambda=1}^{q} fn_{\lambda})$$
+\begin{equation}
+    B_{micro}=B(\sum_{\lambda=1}^{q} tp_{\lambda}, \sum_{\lambda=1}^{q} tn_{\lambda}, 
+\sum_{\lambda=1}^{q} fp_{\lambda}, \sum_{\lambda=1}^{q} fn_{\lambda})
+\end{equation}
 
-$L=\{\lambda_{j}: j=1,\dots,q \}$ este setul tuturor etichetelor asociate claselor, iar 
-$B(tp, tn, fp, fn)$ este o măsură de evaluare binară bazată pe noţiunile introduse mai sus
+$$L=\{\lambda_{j}: j=1,\dots,q \}$$ 
+este setul tuturor etichetelor asociate claselor, iar 
+$$B(tp, tn, fp, fn)$$ este o măsură de evaluare binară bazată pe noţiunile introduse mai sus
 \cite{Asch2013MacroandME}.
 În cazul nostru, $\lambda=2$.
 

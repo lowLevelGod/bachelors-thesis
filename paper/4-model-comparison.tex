@@ -1,10 +1,13 @@
 \chapter{Evaluarea modelelor}
 
+
 Căutarea \textbf{hiperparametrilor optimi} se va realiza pentru fiecare model 
 în parte folosind setul de validare. La final, cele mai bune modele 
 găsite sunt evaluate într-un mod imparţial pe setul de testare. 
 
-\section{One Class SVM}
+\section{Modele nesupervizate}
+
+\subsection{One Class SVM}
 
 Pentru a exploata capabilităţile de modelare a unei margini de decizie 
 neliniare a SVM-urilor, avem nevoie de funcţii kernel care să scufunde
@@ -251,7 +254,7 @@ respectiv a fals negativelor. Astfel, alegem $\gamma=0.01$ şi $\nu=0.001$ pentr
 
 \noindent
 
-\section{Gaussian Mixture Model}
+\subsection{Gaussian Mixture Model}
 
 \begin{table}[H]
   \centering
@@ -359,7 +362,7 @@ per total.
 \noindent
   
 
-\section{Kernel Density Estimation}
+\subsection{Kernel Density Estimation}
 
 \begin{table}[H]
   \centering
@@ -448,7 +451,9 @@ la o netezire excesivă a particularităţilor distribuţiei.
 
 \noindent
 
-\section{SVM Supervizat}
+\section{Modele supervizate}
+
+\subsection{SVM Supervizat}
 
 Pentru a profita de faptul că avem la dispoziţie etichetele datelor, vom trata 
 problema şi din punct de vedere supervizat. Gaussian Mixture Model şi Kernel 
