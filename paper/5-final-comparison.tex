@@ -16,33 +16,35 @@ imparţial modelele finale.
     \hline
     {Model} & {Accuracy} & {Recall} & {Precision} & {F1 Score} \\
     \hline
-    \rowcolor{gray!20} \text{OCSVM} & 0.8913 & 0.0577 & 0.8823 & 0.1080 \\
-    \text{KDE} & 0.8911 & 0.0575 & 0.8823 & 0.1078 \\
-    \rowcolor{gray!20} \text{GMM} & 0.865 & 0.735 & 0.505 & 0.599 \\
+    \rowcolor{gray!20} \text{OCSVM} & 0.817 & 0.638 & 0.585 & 0.610 \\
+    \text{GMM} & 0.865 & 0.735 & 0.505 & 0.599 \\
+    \rowcolor{gray!20} \text{KDE} & 0.863 & 0.731 & 0.502 & 0.596 \\
     \hline
     \end{tabularx}
     \caption{Performanţa fiecărui model pe setul de testare}
 \end{table}
 
-Cele 2 modele care au o performanţă similară sunt Gaussian Mixture Model și One Class SVM,
-ultimul fiind foarte puţin mai slab decât cel din urmă, dar cu un timp de antrenare 
+Cele 2 modele care au o performanţă similară sunt Gaussian Mixture Model și Kernel Density Estimation,
+ultimul având o valoare puţin mai mică pentru F1 score faţă de cel din urmă, dar cu un timp de antrenare 
 mult mai mare. Kernel Density Estimation este de departe un model nepotrivit 
 pentru acest set de date, necesitând un timp crescut de antrenare pentru 
 niște rezultate mediocre. 
 
 Precision este scăzut şi prin urmare şi 
-f1 score este scăzut. În schimb, recall are o valoare ridicată pentru toate modelele. Acest 
-fapt ne arată că detectăm aproape toate anomaliile, dar în acelaşi timp, semnalăm un număr 
+f1 score este scăzut. În schimb, recall are o valoare mai ridicată pentru toate modelele. Acest 
+fapt ne arată că detectăm o cantitate mare de anomalii, dar în acelaşi timp, semnalăm un număr 
 mare de tranzacţii obişnuite ca fiind frauduloase. Acest lucru poate deveni un inconvenient 
 pentru client în cazul în care tranzacţia este anulată ca urmare a raportării incorecte.
 
-Gaussian Mixture Model este modelul cu valorile cele mai mari pentru toate metricile, chiar dacă nu este 
+Gaussian Mixture Model a fost modelul cu valoarea cea mai mare pentru f1 score
+pentru setul de validare, chiar dacă nu este 
 un model la fel de complex precum celelalte 2 tehnici nesupervizate. De asemenea, 
 acesta a necesitat doar 3 minute pentru
-antrenare şi prezicere a etichetelor, dar a produs rezultate aproape la fel de bune precum
-One class SVM şi mult mai bune decât Kernel Density Estimation care au avut nevoie de mai mult de o oră şi jumătate,
-respectiv 40 minute, cel din urmă neavând o performanţă cu mult mai ridicată în raport 
-cu complexitatea de timp.
+antrenare şi prezicere a etichetelor, dar a produs rezultate mai bune decât
+One class SVM şi decât Kernel Density Estimation care au avut nevoie de o perioada
+îndelungată pentru antrenare şi căutare a hiperparametrilor optimi.
+
+Totuşi, pe setul de test, One Class SVM este cel care obţine cel mai mare f1 score.
 
 Ilustrăm şi ROC Curve alături de metrica AUC pentru modelele finale. Cu cât graficul 
 tinde să se lipească de colţul stânga sus, cu atât aria de sub grafic creşte rezultând 
@@ -72,28 +74,35 @@ unde
     \item $f$ este funcţia de decizie 
 \end{itemize}
 
-Astfel, putem compara modelele finale folosind şi metrica AUC. Clasamentul este acelaşi şi aici,
-cu One Class SVM fiind cel mai performant, urmat de Kernel Density Estimation, iar Gaussian Mixture
-Model la coadă.
+Astfel, putem compara modelele finale folosind şi metrica AUC care ne 
+indică cât de robust este un model, indiferent de pragul ales pentru 
+o anumită problemă. Clasamentul este acelaşi şi aici,
+cu One Class SVM fiind cel mai performant, urmat de Gaussian Mixture
+Model, iar Kernel Density Estimation la coadă.
 
-\begin{figure}[p] % Use a separate page for the figure
+În concluzie, \textbf{One Class SVM} este modelul cel mai bun cu \textbf{f1 score}
+de 0.61 şi 
+\textbf{AUC} de 0.91 pe setul de test, 
+dar Gaussian Mixture Model este şi el un candidat
+bun datorită vitezei de antrenare şi inferenţă.
+
+\begin{figure}[!htb] % Use a separate page for the figure
     \begin{minipage}[t]{0.5\textwidth}
         \vspace{0pt}
-        \includegraphics[width=\textwidth]{images/ocsvm-roc.png}
-        \caption{ROC Curve OCSVM}
+        \includegraphics[width=\textwidth]{images/kde-roc.pdf}
+        \caption{ROC Curve KDE} 
     \end{minipage}
     \hfill
     \begin{minipage}[t]{0.5\textwidth}
         \vspace{0pt}
-        \includegraphics[width=\textwidth]{images/gmm-roc.png}
+        \includegraphics[width=\textwidth]{images/gmm-roc.pdf}
         \caption{ROC Curve GMM}
     \end{minipage}
     
     \begin{minipage}[t]{1\textwidth}
        \centering
-        
-        \includegraphics[width=\textwidth]{images/kde-roc.png}
-        \caption{ROC Curve KDE} 
+        \includegraphics[width=\textwidth]{images/ocsvm-roc.pdf}
+        \caption{ROC Curve OCSVM}
     \end{minipage}
     
 \end{figure}

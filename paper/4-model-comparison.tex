@@ -39,17 +39,15 @@ de rezolvare a unui sistem de ecuaţii folosind algebră liniară. De aceea, est
 potrivită atunci când mărimea setului de date trece de ordinul sutelor de mii,
 în ciuda faptului că sacrificăm acurateţea ponderilor estimate.
 
-Metoda Nystroem aproximează matricea funcţiei de scufundare pentru un kernel dat,
-în cazul nostru cel Gaussian, folosind tehnica aproximării cu \textbf{matrice de 
+Metoda Nystroem aproximează matricea kernel pentru o anumită funcţie kernel dată,
+folosind tehnica aproximării cu \textbf{matrice de 
 rang scăzut} unde o fracţiune din punctele setului de antrenare este folosită 
 ca bază vectorială pentru kernelul respectiv. Evident, calculul va fi mult mai 
-rapid folosind o matrice de dimensiune redusă. Spre exemplu, am folosit doar 
-\textbf{$0.04\%$} din setul de antrenare cu cardinalul $213,236$ pentru că mai mult nu 
-ar fi avut loc în memoria
-RAM cu capacitate de 32GB, şi timpul de antrenare adunat cu cel de prezicere a 
-fost de sub 10 minute,
-comparativ cu timpul normal dacă foloseam matricea întreagă de minim o oră şi 
-jumătate.
+rapid folosind o matrice de dimensiune redusă. Am comparat performanţa acestei metode 
+pentru diverse funcţii kernel şi pentru diverse fracţiuni de puncte din setul de 
+antrenare, care erau folosite de algoritm. Numărul de puncte a fost selectat astfel 
+încât să ocupe un procent, dat ca parametru, din memoria RAM. Prin urmare, rezultatele 
+pot să difere în funcţie de capacitatea memoriei pe care o avem la dispoziţie.
 
 Pentru comparaţie am inclus şi funcţiile \textbf{polinomială} şi 
 \textbf{sigmoidă}. Cu cea din urmă am obţinut rezultatele cele mai bune în comparaţie
@@ -169,9 +167,8 @@ unde o frontieră mai mică este asociată
 cu o varianţă crescută, în timp ce o frontiera mai mare este asociată cu un bias 
 crescut.
 
-Folosim metoda \textbf{Grid Search} pentru a găsi parametrii favorabili. Valorile aparţin 
-mulţimilor $\gamma \in \{1e-2, 2e-2, 0.03, 0.5, 1.0, 2.0\}$ şi 
-$\nu \in \{1e-4, 1e-3, 5e-3, 0.05, 0.1, 0.3, 0.5\}$.
+Folosim metoda \textbf{Grid Search} pentru a găsi parametrii favorabili. Afişăm 
+doar valorile parametrilor pentru care obţinem rezultate semnificative.
 
 \begin{table}[H]
   \centering
@@ -197,15 +194,13 @@ $\nu \in \{1e-4, 1e-3, 5e-3, 0.05, 0.1, 0.3, 0.5\}$.
 \end{table}
 
 Se observă că $\gamma$ este parametrul care aduce schimbările drastice în valorile 
-metricilor, pe când $\nu$ doar creşte sau scade relativ puţin aceste valori. Accuracy şi f1 score 
-nu sunt neapărat corelate, în timp ce precision şi recall tind să aibă valori 
-divergente.
+metricilor, pe când $\nu$ doar creşte sau scade relativ puţin aceste valori.
 
 Urmărim f1 score, aceasta fiind metrica ce evaluează modelul oarecum 
 echilibrat, în contrast cu precision şi recall care favorează minimizarea fals pozitivelor, 
 respectiv a fals negativelor. Astfel, alegem $\gamma=0.01$ şi $\nu=0.0001$ pentru modelul final.
 
-\begin{figure}[p] % Use a separate page for the figure
+\begin{figure}[!htb] % Use a separate page for the figure
     \begin{minipage}[t]{0.5\textwidth}
         \vspace{0pt}
         \includegraphics[width=\textwidth]{images/ocsvm-accuracy.pdf}
@@ -255,7 +250,7 @@ respectiv a fals negativelor. Astfel, alegem $\gamma=0.01$ şi $\nu=0.0001$ pent
   \rowcolor{gray!20} 5 & 0.01 & 0.912	& 0.829 & 0.569	& 0.675  \\
   \hline
   \end{tabularx}
-  \caption{Performanţa rămâne relativ constantă între diferitele valori}
+  \caption{Cele mai bune rezultate obţinute pentru Gaussian Mixture Model}
 \end{table}
 
 
@@ -293,14 +288,15 @@ dată simplitatea modelului, rezultatele sunt impresionante.
 Cu un timp de antrenare de sub câteva minute, obține rezultate 
 mai bune decât One Class SVM pe setul de validare.
 
-Alegem \textbf{numărul de componente $n=6$} pentru modelul final, chiar dacă 
+Alegem \textbf{numărul de componente $n=4$} şi valoarea
+cuantilei $q=0.01$ pentru modelul final, chiar dacă 
 am avut rezultate bune şi cu $n=1$ deoarece ne dorim un model puţin mai complex 
 decât o banală distribuţie Gaussiană. În practică, este o şansă mică să dăm peste 
 un proces care să genereze date fix în acest mod. De asemenea, aici f1 score are valoarea cea mai mare
 şi după aceasta ne vom ghida, având în vedere că ne interesează performanţa modelului 
 per total.
 
-\begin{figure}[H] % Use a separate page for the figure
+\begin{figure}[!htb] % Use a separate page for the figure
     \begin{minipage}[t]{0.5\textwidth}
         \vspace{0pt}
         \includegraphics[width=\textwidth]{images/gmm-accuracy.pdf}
@@ -353,11 +349,17 @@ per total.
   \rowcolor{gray!20} tophat	& 8	& 0.01 & 0.877 & 0.760 & 0.513 & 0.613 \\
   \hline
   \end{tabularx}
-  \caption{Performanța creşte cu valoare lăţimii de bandă}
+  \caption{Cele mai bune rezultate obţinute pentru Kernel Density Estimation}
 \end{table}
 
-Folosim \textbf{kernelul Gaussian}, fiind cel mai des întâlnit în practică
-datorită numeroaselor proprietăţi utile pe care le deţine. De asemenea, trebuie 
+Am testat mai multe funcţii kernel, anume: \textbf{tophat}, 
+\textbf{liniar}, \textbf{parabolic}, \textbf{cosinus},
+\textbf{exponenţial} şi \textbf{gaussian}. 
+Deşi kernelul Gaussian este cel mai des întâlnit în practică
+datorită numeroaselor proprietăţi utile pe care le deţine, aici se observă
+că nu obține rezultate satisfăcătoare, kernelul \textbf{tophat}
+fiind cel care performează
+cel mai bine. De asemenea, trebuie 
 să impunem un prag după care să decidem daca un punct este sau nu anomalie. 
 Vom alege cuantile luate pe setul de validare, precum în cazul 
 Gaussian Mixture Model.
@@ -371,24 +373,23 @@ fapt ce duce la o distribuţie cu mulţi "ţepi".
 aflate la distanţă mare joacă un rol important. În cel mai rău caz, o distribuţie 
 multimodală ajunge sa fie estimată ca una unimodală din cauza netezimii graficului.
 
-La fel ca în cazul One Class SVM, precision şi recall evoluează puternic
-divergent, după cum reiese şi din grafice. 
-Se observă că după $1.0$, valoarea lăţimii de banda nu mai aduce îmbunătăţiri 
-semnificative. Acest lucru este ilustrat și pe grafic sub forma unui maxim local 
-pentru f1 score. La fel ca în cazul Gaussian Mixture Model, cuantila 
-folosită are un puternic impact asupra performanţei modelului.
+Se observă că modelul are o performanţă mai bună pentru valori 
+mai mari ale lăţimii de banda, indiferent de kernel. Totuşi, 
+la fel de importantă este şi cuantila pentru obţinerea rezultatelor 
+cele mai bune. Acest lucru este ilustrat și pe graficele de mai jos. 
+Spre deosebire de Gaussian Mixture Model, cuantila 
+folosită nu are un puternic impact asupra performanţei modelului de una singură.
 
 Din păcate, după un timp de antrenare ce depășește 40 minute, 
 timp ce se află între valorile pentru OCSVM și GMM, nu obținem 
-rezultate mai bune decât niciunul dintre modelele precedente
+rezultate mai bune decât GMM
 pe setul de validare. 
 
-Alegem \textbf{lăţimea de bandă} $bandwidth=1.0$ pentru modelul final deoarece are cea
-mai bună valoare pentru f1 score. De asemenea, aceasta este şi cea mai mică valoare 
-care aduce o performanţă decentă. O valoare prea mare a lăţimii de banda duce 
-la o netezire excesivă a particularităţilor distribuţiei.
+Alegem \textbf{lăţimea de bandă} $h=9$, kernelul \textbf{tophat} şi valoarea
+cuantilei $q=0.01$ pentru modelul final deoarece are cea
+mai bună valoare pentru f1 score.
 
-\begin{figure}[p] % Use a separate page for the figure
+\begin{figure}[!htb] % Use a separate page for the figure
     \begin{minipage}[t]{0.5\textwidth}
         \vspace{0pt}
         \includegraphics[width=\textwidth]{images/kde-accuracy.pdf}
@@ -439,7 +440,7 @@ de parametrul $C$ care are rolul de regularizare în SVM-ul Soft-Margin.
 Se observă o creştere substanţială a valorilor metricilor atunci când tratăm 
 problema în mod supervizat, \textbf{F1 Score} 
 depăşind 0.87 pe setul de validare, în timp ce 
-OCSVM pe setul de validare abia atingea 0.12.
+OCSVM pe setul de validare abia atingea 0.66.
 
 \begin{table}[H]
     \centering
