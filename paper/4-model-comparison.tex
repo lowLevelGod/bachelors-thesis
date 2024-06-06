@@ -139,13 +139,59 @@ de atât, mai ales că acurateţea prezicerilor devenea din ce în ce mai îndoi
         |X|
     }
     \hline
-    $\gamma$ & $\nu$ & {Accuracy} & {Recall} & {Precision} & {F1 Score} \\
+    $\gamma$ & {Componente} & {Accuracy} & {Recall} & {Precision} & {F1 Score} \\
     \hline
-    \rowcolor{gray!20} 0.2 & 0.5 & 0.7405 & 0.9796 & 0.0134 & 0.0264 \\
-    0.03 & 0.5 & 0.7402 & 0.9837 &  0.0133 &   0.0263 \\
+     0.5 & 24394 & 0.752 & 0.979 & 0.0140	& 0.0277 \\
+    \rowcolor{gray!20} 0.5	& 22128	& 0.752 & 0.979	& 0.0140 & 0.0277 \\
+    0.5	& 11005	& 0.749	& 0.979	& 0.0139 & 0.0274 \\
     \hline
   \end{tabularx}
-  \caption{Cele mai bune rezultate obţinute pentru kernel-ul liniar cu SGD şi Nystroem}
+  \caption{Cele mai bune rezultate obţinute pentru kernel-ul Gaussian cu SGD şi Nystroem}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X|
+    }
+    \hline
+    $d$ & $\gamma$ & {Componente} & {Accuracy} & {Recall} & {Precision} & {F1 Score} \\
+    \hline
+    1 & 1 & 24248 & 0.730 & 0.898 & 0.014 & 0.0275 \\
+    \rowcolor{gray!20} 1 &  1 & 5547 & 0.734	& 0.914	& 0.014	& 0.0275 \\ 
+    1 & 1 & 16527 & 0.727 & 0.930 & 0.013 & 0.0263 \\ 
+    \hline
+  \end{tabularx}
+  \caption{Cele mai bune rezultate obţinute pentru kernel-ul polinomial cu SGD şi Nystroem}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X
+        |X|
+    }
+    \hline
+    $\gamma$ & {Componente} & {Accuracy} & {Recall} & {Precision} & {F1 Score} \\
+    \hline
+     0.001 & 426 & 0.833 & 0.747 & 0.059 & 0.1108 \\
+     \rowcolor{gray!20} 0.001 & 213 & 0.889 & 0.922 & 0.042	& 0.0817 \\
+    0.001 & 852	& 0.596 & 0.313 & 0.017	& 0.0337 \\
+    \hline
+  \end{tabularx}
+  \caption{Cele mai bune rezultate obţinute pentru kernel-ul sigmoid cu SGD şi Nystroem}
 \end{table}
 
 Utilizăm kernelul Gaussian, deci printre hiperparametrii optimi pe care îi căutăm 
