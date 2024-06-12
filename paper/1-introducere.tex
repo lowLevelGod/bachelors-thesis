@@ -101,14 +101,19 @@ siguranţei unei parole introduse de utilizator la crearea unui cont pe o platfo
 web. Este suficient să verificăm dacă parola are un număr minim precizat de caractere 
 sau dacă conţine anumite simboluri ce reduc vulnerabilitatea în faţa unui atac cibernetic.
 
-Din păcate, multe din problemele cu care ne confruntăm nu au soluţii simple. 
+Din păcate, multe din problemele cu care ne confruntăm nu au soluţii simple, 
+\textcolor{blue}{iar 
+în unele situaţii, problema este greu de definit, mai ales în lipsa exemplelor, precum 
+este cazul detecţiei anomaliilor.}
 Aici intervine învăţarea automată ce încearcă să aproximeze posibilul set de reguli, 
 prea complex pentru a fi definit, ce ar putea rezolva problema. Am putea spune că 
 această tehnică "învaţă" setul de reguli 
 din datele puse la dispoziţie, de unde şi denumirea. Evident, o aproximare 
 nu are cum să fie perfectă, dar este suficient de bună încât să scutească oamenii de 
-o mare parte din treabă. În cazul tranzacţiilor bancare, ce probabil sunt efectuate 
-în număr de sute de milioane pe zi, nu este greu de observat că verificarea manuală
+o mare parte din treabă. În cazul tranzacţiilor bancare, \textcolor{blue}
+{ce s-au efectuat în medie 
+de 1.98 de miliarde pe zi la nivel global în 2023}\cite{transactions-per-day}, 
+nu este greu de observat că verificarea manuală
 de către oameni este imposibilă, iar găsirea unui set simplu de reguli care să 
 le caracterizeze din nou este o problemă dificilă. Totuşi, învăţarea automată 
 ne poate ajuta să minimizăm fraudele ce trec nedetectate de la milioane la câteva zeci
@@ -127,7 +132,10 @@ motor defect.
         într-un fel sau altul comportamentul unui motor defectuos, dar 
         se observă că această operaţiune este greu de realizat şi chiar dacă am reuşi 
         să o ducem la capăt, datele colectate nu ar fi autentice şi ar putea duce 
-        la o reprezentare incorectă a anomaliilor. 
+        la o reprezentare incorectă a anomaliilor. \textcolor{blue}{
+        De asemenea, simularea
+        sabotajului ar necesita identificarea unui algoritm corespunzător, 
+        dar acest lucru ar duce de fapt la rezolvarea problemei iniţiale.}
 
     \item A doua variantă implică \textbf{sabotarea 
         intenţionată} a motorului pentru a obţine datele, dar acest lucru produce un 
@@ -162,12 +170,12 @@ reprezenta o anomalie pentru fiecare:
 \begin{itemize}
     \item \textbf{Fraude financiare}: ne dorim să semnalăm comportamentul ciudat 
     observat într-o serie de tranzacţii, precum activitatea generată de 
-    o persoana care foloseşte cardul de credit al altei persoane în mod 
+    o persoană care foloseşte cardul de credit al altei persoane în mod 
     neautorizat. Această aplicaţie constituie şi obiectul lucrării noastre\cite{financial-fraud}.
     \item \textbf{Intruziune în reţele de calculatoare}: vrem să semnalăm activitatea
     neobişnuită ce poate indica un potenţial atac cibernetic sau accesul 
     neautorizat al unui terţ maliţios\cite{network-traffic}.
-    \item \textbf{Controlul calităţii în manufactură}: suntem interesaţi să monitorizăm 
+    \item \textbf{Controlul calităţii în procesele de fabricaţie}: suntem interesaţi să monitorizăm 
     procesul de producţie pentru a raporta eventualele defecţiuni ce ar afecta 
     calitatea produsului\cite{quality-control}.
     \item \textbf{Domeniul medical}: vrem să identificăm anomalii în analizele de sânge, 
@@ -204,7 +212,7 @@ originând din mediul online, conform \textit{UK Finance}
 \cite{uk-finance}.
 
 Prin urmare, este nevoie de o soluţie care să poată 
-preveni măcar o mare parte din tranzacţiile frauduloase dacă
+preveni o mare parte din tranzacţiile frauduloase, dacă
 nu chiar pe toate și care să nu necesite verificarea manuală
 a unui om decât pentru un număr mic de evenimente.
 
@@ -216,9 +224,17 @@ a unui om decât pentru un număr mic de evenimente.
 La prima vedere, aceste două probleme par sa coincidă şi ne determină
 să ne întrebăm de ce a mai apărut un nou domeniu de cercetare, anume detecţia
 anomaliilor, când deja avem la dispoziţie atâtea rezultate utile pentru 
-problema clasificării. Din păcate, dacă nu cunoaştem numărul de clase ce pot apărea 
+problema clasificării. 
+
+\textcolor{blue}{Clasificarea clasică reprezintă problema 
+atribuirii clasei corecte pentru fiecare observaţie din setul de date,
+unde clasele ce trebuie identificate sunt bine definite şi de cele mai
+multe ori, trasăturile lor se suprapun în mai multe locuri.}
+
+Din păcate, dacă nu cunoaştem numărul de clase ce pot apărea 
 sau nu avem un eşantion reprezentativ pentru toate tipurile de clase, fapt ce se 
-întâmplă deseori în practică, nu putem utiliza un clasificator clasic. De exemplu, 
+întâmplă deseori în practică, utilizarea unui clasificator clasic probabil 
+nu va oferi rezultate bune. De exemplu, 
 în cazul tranzacţiilor bancare, nu putem şti cu certitudine care sunt toate 
 tipurile de fraudă ce pot apărea şi nici nu avem un număr suficient de exemple 
 pentru a defini măcar tipurile de fraudă pe care le-am identificat până acum.
@@ -228,7 +244,9 @@ este compusă dintr-o multitudine de subclase necunoscute.
 
 De asemenea, problemele de clasificare de cele mai multe ori presupun 
 accesul la etichetele asociate fiecărei observaţii, deci metodele 
-supervizate sunt cele mai potrivite aici. Totuşi, și dacă setul de date 
+supervizate sunt cele mai potrivite aici, \textcolor{blue}{pe acestea bazându-se
+şi marile succese ale cercetării din ultimii ani în domeniul învăţării automate.} 
+Totuşi, și dacă setul de date 
 este etichetat, lucru ce se întâmplă în cel mai bun caz, un clasificator 
 clasic ar avea o performanță slabă pentru problema detecției anomaliilor
 din cauza dificultății modelării claselor, după cum am menționat și mai sus.
@@ -258,9 +276,7 @@ cu observaţiile reprezentative aferente.
 
 \subsection{Scopul clasificării clasice}
 
-La clasificarea clasică, clasele ce trebuie identificate sunt bine 
-definite şi de cele mai multe ori, trasăturile lor se suprapun în mai multe locuri. De 
-asemenea, această problemă acordă o importanţă \textbf{egală} tuturor categoriilor
+Această problemă acordă o importanţă \textbf{egală} tuturor categoriilor
 implicate, pe când 
 eşecul de a semnala o anomalie este în general mult mai dăunător faţă de 
 detectarea unei observaţii normale ca fiind anormală. 

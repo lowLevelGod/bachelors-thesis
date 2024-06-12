@@ -80,7 +80,7 @@ de atât, mai ales că acurateţea prezicerilor devenea din ce în ce mai îndoi
     7 & 2 & 0.0001 & 0.502	& 0.024	& 0.008	& 0.0124 \\
     \hline
   \end{tabularx}
-  \caption{Cele mai bune rezultate obţinute pentru kernel-ul polinomial}
+  \caption{Cele mai bune rezultate, în funcţie de F1, obţinute pentru kernel-ul polinomial}
 \end{table}
 
 \begin{table}[H]
@@ -103,7 +103,7 @@ de atât, mai ales că acurateţea prezicerilor devenea din ce în ce mai îndoi
     0.02 & 0.007 & 0.756 & 0.520 & 0.347 & 0.416 \\
     \hline
   \end{tabularx}
-  \caption{Cele mai bune rezultate obţinute pentru kernel-ul sigmoid}
+  \caption{Cele mai bune rezultate, în funcţie de F1, obţinute pentru kernel-ul sigmoid}
 \end{table}
 
 \begin{table}[H]
@@ -124,7 +124,7 @@ de atât, mai ales că acurateţea prezicerilor devenea din ce în ce mai îndoi
     0.001 & 0.412	& 0.0813	& 0.002	& 0.004 \\
     \hline
   \end{tabularx}
-  \caption{Cele mai bune rezultate obţinute pentru kernel-ul liniar}
+  \caption{Cele mai bune rezultate, în funcţie de F1, obţinute pentru kernel-ul liniar}
 \end{table}
 
 \begin{table}[H]
@@ -146,7 +146,7 @@ de atât, mai ales că acurateţea prezicerilor devenea din ce în ce mai îndoi
     0.5	& 11005	& 0.749	& 0.979	& 0.0139 & 0.0274 \\
     \hline
   \end{tabularx}
-  \caption{Cele mai bune rezultate obţinute pentru kernel-ul Gaussian cu SGD şi Nystroem}
+  \caption{Cele mai bune rezultate, în funcţie de F1, obţinute pentru kernel-ul Gaussian cu SGD şi Nystroem}
 \end{table}
 
 \begin{table}[H]
@@ -169,7 +169,7 @@ de atât, mai ales că acurateţea prezicerilor devenea din ce în ce mai îndoi
     1 & 1 & 16527 & 0.727 & 0.930 & 0.013 & 0.0263 \\ 
     \hline
   \end{tabularx}
-  \caption{Cele mai bune rezultate obţinute pentru kernel-ul polinomial cu SGD şi Nystroem}
+  \caption{Cele mai bune rezultate, în funcţie de F1, obţinute pentru kernel-ul polinomial cu SGD şi Nystroem}
 \end{table}
 
 \begin{table}[H]
@@ -191,7 +191,7 @@ de atât, mai ales că acurateţea prezicerilor devenea din ce în ce mai îndoi
     0.001 & 852	& 0.596 & 0.313 & 0.017	& 0.0337 \\
     \hline
   \end{tabularx}
-  \caption{Cele mai bune rezultate obţinute pentru kernel-ul sigmoid cu SGD şi Nystroem}
+  \caption{Cele mai bune rezultate, în funcţie de F1, obţinute pentru kernel-ul sigmoid cu SGD şi Nystroem}
 \end{table}
 
 Utilizăm kernelul Gaussian, deci printre hiperparametrii optimi pe care îi căutăm 
@@ -236,13 +236,13 @@ doar valorile parametrilor pentru care obţinem rezultate semnificative.
   \rowcolor{gray!20} 0.02 &  0.001	&  0.877 & 0.760 &  0.523	&  0.620 \\
   \hline
   \end{tabularx}
-  \caption{Cele mai bune rezultate obţinute pentru kernel-ul Gaussian}
+  \caption{Cele mai bune rezultate, în funcţie de F1, obţinute pentru kernel-ul Gaussian}
 \end{table}
 
 Se observă că $\gamma$ este parametrul care aduce schimbările drastice în valorile 
 metricilor, pe când $\nu$ doar creşte sau scade relativ puţin aceste valori.
 
-Urmărim f1 score, aceasta fiind metrica ce evaluează modelul oarecum 
+Urmărim F1 score, aceasta fiind metrica ce evaluează modelul oarecum 
 echilibrat, în contrast cu precision şi recall care favorează minimizarea fals pozitivelor, 
 respectiv a fals negativelor. Astfel, alegem $\gamma=0.01$ şi $\nu=0.0001$ pentru modelul final.
 
@@ -287,7 +287,7 @@ respectiv a fals negativelor. Astfel, alegem $\gamma=0.01$ şi $\nu=0.0001$ pent
       |X|
   }
   \hline
-  $n$ & $q$ & {Accuracy} & {Recall} & {Precision} & {F1 Score} \\
+  $K$ & $q$ & {Accuracy} & {Recall} & {Precision} & {F1 Score} \\
   \hline
   \rowcolor{gray!20} 4 & 0.01 & 0.920 & 0.845 & 0.581 & 0.688  \\
   3	& 0.01 & 0.918	& 0.841 & 0.578 & 0.685 \\
@@ -296,25 +296,25 @@ respectiv a fals negativelor. Astfel, alegem $\gamma=0.01$ şi $\nu=0.0001$ pent
   \rowcolor{gray!20} 5 & 0.01 & 0.912	& 0.829 & 0.569	& 0.675  \\
   \hline
   \end{tabularx}
-  \caption{Cele mai bune rezultate obţinute pentru Gaussian Mixture Model}
+  \caption{Cele mai bune rezultate, în funcţie de F1, obţinute pentru Gaussian Mixture Model}
 \end{table}
 
 
 
 Pentru acest model, hiperparametrul optim 
-căutat este numărul de componente Gaussiene $n$. Vom încerca pe rând fiecare valoare
-din $\{1, 2, 3, \ldots, 16, 17\}$. De asemenea, pentru că modelul 
+căutat este numărul de componente Gaussiene $K$. Vom încerca pe rând fiecare valoare
+din $K\in\{1, 2, 3, \ldots, 16, 17\}$. De asemenea, pentru că modelul 
 ne va oferi probabilitățile de apartenență a unui punct pentru 
 fiecare componentă, vom avea nevoie și de un prag pentru a decide 
 dacă punctul este sau nu anomalie. Ne vom folosi de cuantile 
 calculate pe setul de validare pentru a găsi pragul optim.
 
-Pentru $n=1$ putem afla parametrii foarte eficient folosind 
+Pentru $K=1$ putem afla parametrii foarte eficient folosind 
 \textbf{Maximum Likelihood Estimation}, întrucât problema 
 se reduce la aflarea mediei şi a matricei de 
 covarianţă pentru o distribuţie Gaussiană. 
 
-Pentru $n > 1$ vom folosi \textbf{Expectation Maximization} 
+Pentru $K > 1$ vom folosi \textbf{Expectation Maximization} 
 pentru a găsi parametrii optimi, 
 având în vedere ca numărul de componente este precizat de la început.
 
@@ -334,11 +334,11 @@ dată simplitatea modelului, rezultatele sunt impresionante.
 Cu un timp de antrenare de sub câteva minute, obține rezultate 
 mai bune decât One Class SVM pe setul de validare.
 
-Alegem \textbf{numărul de componente $n=4$} şi valoarea
+Alegem \textbf{numărul de componente $K=4$} şi valoarea
 cuantilei $q=0.01$ pentru modelul final, chiar dacă 
-am avut rezultate bune şi cu $n=1$ deoarece ne dorim un model puţin mai complex 
+am avut rezultate bune şi cu $K=1$ deoarece ne dorim un model puţin mai complex 
 decât o banală distribuţie Gaussiană. În practică, este o şansă mică să dăm peste 
-un proces care să genereze date fix în acest mod. De asemenea, aici f1 score are valoarea cea mai mare
+un proces care să genereze date fix în acest mod. De asemenea, aici F1 score are valoarea cea mai mare
 şi după aceasta ne vom ghida, având în vedere că ne interesează performanţa modelului 
 per total.
 
@@ -395,7 +395,7 @@ per total.
   \rowcolor{gray!20} tophat	& 8	& 0.01 & 0.877 & 0.760 & 0.513 & 0.613 \\
   \hline
   \end{tabularx}
-  \caption{Cele mai bune rezultate obţinute pentru Kernel Density Estimation}
+  \caption{Cele mai bune rezultate, în funcţie de F1, obţinute pentru Kernel Density Estimation}
 \end{table}
 
 Am testat mai multe funcţii kernel, anume: \textbf{tophat}, 
@@ -433,7 +433,7 @@ pe setul de validare.
 
 Alegem \textbf{lăţimea de bandă} $h=9$, kernelul \textbf{tophat} şi valoarea
 cuantilei $q=0.01$ pentru modelul final deoarece are cea
-mai bună valoare pentru f1 score.
+mai bună valoare pentru F1 score.
 
 \begin{figure}[!htb] % Use a separate page for the figure
     \begin{minipage}[t]{0.5\textwidth}
@@ -468,7 +468,12 @@ mai bună valoare pentru f1 score.
 \subsection{SVM Supervizat}
 
 Pentru a profita de faptul că avem la dispoziţie etichetele datelor, vom trata 
-problema şi din punct de vedere supervizat. Gaussian Mixture Model şi Kernel 
+problema şi din punct de vedere supervizat. \textcolor{blue}{Scopul acestui experiment
+este de a vedea impactul etichetelor asupra performanţei algoritmilor, 
+comparând cazul ideal, unde putem folosi metode supervizate, cu cel din lumea reală,
+unde, de obicei, ne bazăm pe cele nesupervizate în lipsa etichetelor.}
+
+Gaussian Mixture Model şi Kernel 
 Density Estimation nu pot fi aplicate decât într-un mediu nesupervizat, aşa 
 că vom antrena doar SVM-ul, dar de data aceasta pentru clasificare binară.
 Astfel, putem observa performanţa algoritmilor prezentaţi anterior şi faţă 

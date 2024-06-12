@@ -21,7 +21,7 @@ imparţial modelele finale.
     \rowcolor{gray!20} \text{KDE} & 0.863 & 0.731 & 0.502 & 0.596 \\
     \hline
     \end{tabularx}
-    \caption{Performanţa fiecărui model pe setul de testare}
+    \caption{Performanţa maximă, în funcţie de F1, a fiecărui model pe setul de testare}
 \end{table}
 
 Cele 2 modele care au o performanţă similară sunt Gaussian Mixture Model și Kernel Density Estimation,
@@ -46,7 +46,7 @@ One class SVM şi decât Kernel Density Estimation care au avut nevoie de o peri
 
 Totuşi, pe setul de test, One Class SVM este cel care obţine cel mai mare f1 score.
 
-Ilustrăm şi ROC Curve alături de metrica AUC pentru modelele finale. Cu cât graficul 
+Ilustrăm şi curba ROC alături de metrica AUC pentru modelele finale. Cu cât graficul 
 tinde să se lipească de colţul stânga sus, cu atât aria de sub grafic creşte rezultând 
 într-o performanţă mai bună. Linia punctată pe diagonală 
 din fiecare diagramă reprezintă graficul produs de clasificatorul aleatoriu şi are rolul
@@ -58,7 +58,7 @@ liniei. Prin urmare, distanţa între grafic şi linie este o măsură mai relev
 relativă. Se presupune că operaţia de aplicare a simetricului este folosită unde este cazul 
 pentru diagramele de mai jos.
 
-ROC Curve are nevoie ori de probabilităţi ori de valori ce exprimă încrederea pentru fiecare 
+Curba ROC are nevoie ori de probabilităţi ori de valori ce exprimă încrederea pentru fiecare 
 prezicere, fără aplicarea vreunui prag. Kernel Density Esimation şi Gaussian Mixture Model 
 produc deja probabilităţi, pe când One Class SVM nu produce decât distanţa faţă de hiperplanul
 de separare. Totuşi, vom folosi un truc pentru a transforma rezultatele OCSVM în valori 
@@ -69,8 +69,8 @@ $$y_{score} = MAX - f(y)$$
 unde 
 
 \begin{itemize}
-    \item $y_{score}$ este valoarea folosită pentru ROC Curve
-    \item $MAX$ este $\max_{i=1}^{n} f(y_{i})$ pentru $n$ observaţii
+    \item $y_{score}$ este valoarea folosită pentru curba ROC
+    \item $MAX$ este $\underset{i=1,\dots,N}{\max} f(y_{i})$ pentru $N$ observaţii
     \item $f$ este funcţia de decizie 
 \end{itemize}
 
@@ -90,19 +90,19 @@ bun datorită vitezei de antrenare şi inferenţă.
     \begin{minipage}[t]{0.5\textwidth}
         \vspace{0pt}
         \includegraphics[width=\textwidth]{images/kde-roc.pdf}
-        \caption{ROC Curve KDE} 
+        \caption{Curba ROC pentru KDE} 
     \end{minipage}
     \hfill
     \begin{minipage}[t]{0.5\textwidth}
         \vspace{0pt}
         \includegraphics[width=\textwidth]{images/gmm-roc.pdf}
-        \caption{ROC Curve GMM}
+        \caption{Curba ROC pentru GMM}
     \end{minipage}
     
     \begin{minipage}[t]{1\textwidth}
        \centering
         \includegraphics[width=\textwidth]{images/ocsvm-roc.pdf}
-        \caption{ROC Curve OCSVM}
+        \caption{Curba ROC pentru OCSVM}
     \end{minipage}
     
 \end{figure}

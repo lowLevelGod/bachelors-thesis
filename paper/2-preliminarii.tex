@@ -21,9 +21,11 @@ aproximarea cât mai bună a etichetei $y_{N + 1}$ pentru o observaţie nouă
 $x_{N + 1}$.
 
 Învăţarea \textbf{supervizată} poartă acest nume deoarece necesită supraveghere 
-umană pentru a putea funcţiona. Un specialist în ştiinţa datelor trebuie 
+umană pentru a putea funcţiona. Un specialist \textcolor{blue}
+{din domeniul actual, în cazul 
+nostru, bancar,} trebuie 
 să parcurgă fiecare observaţie din setul de date şi să îi atribuie 
-o \textbf{etichetă} corespunzătoare. Acest lucru este evident dificil, având în 
+o \textbf{etichetă} corespunzătoare $y_{i}$. Acest lucru este evident dificil, având în 
 vedere că seturile de date cu minim sute de mii de entităţi sunt des întâlnite.
 
 Această metodă este folosită în probleme de clasificare sau de prezicere 
@@ -42,7 +44,8 @@ $y_{i}$.
 În lipsa etichetelor, problema generalizată nu mai poate fi descrisă la fel 
 de ușor.
 
-Învăţarea \textbf{nesupervizată} este opusul celei supervizate, deci implică faptul 
+Învăţarea \textbf{nesupervizată} este complementara 
+celei supervizate, deci implică faptul 
 că interacţiunea umană nu este necesară în pregătirea setului de date. Cu toate 
 acestea, rezultatele trebuie să fie interpretate de o persoană pentru a fi relevante,
 întrucât nu mai avem etichete pe care să le folosim în evaluarea automată a 
@@ -87,7 +90,11 @@ ideea de bază în novelty detection cu metode nesupervizate este similară. Nu 
 nevoie de date adnotate la antrenare şi este suficient un set mic pentru testarea 
 ulterioară a performanţei.
 
-\section{One Class SVM}
+\textcolor{blue}{
+Mai jos prezentăm algoritmii pentru detectarea anomaliilor folosiţi în această lucrare.
+}
+
+\section{One Class SVM cu kernel}
 
 \subsection{Ideea algoritmului}
 
@@ -103,31 +110,42 @@ hipersfere} care să includă toate punctele din setul de date\cite{tax2004suppo
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{images/cvx_ocsvm_figures.pdf}
-    \caption{Varianta Schölkopf et al în dreapta şi varianta Tax et al în stânga}
+    \caption{Varianta Schölkopf et al în dreapta şi varianta Tax et al în stânga.
+    \textcolor{blue}{
+        Punctele roşii reprezintă anomaliile adevărate. 
+        $N=105$ puncte şi $d=2$ atribute.}
+    }
 \end{figure}
 
 \section{Caracteristici}
 
 One Class SVM ne ajută să transformăm un model de clasificare 
 cu mai multe clase, anume SVM, într-unul cu o singură clasă,
-păstrând abilitatea de a putea introduce neliniarități 
+păstrând posibilitatea de a putea introduce neliniarități 
 cu ajutorul funcţiilor de kernel ce au fost studiate extensiv.
-Prin urmare, are majoritatea avantajelor celui din urmă, precum
+Prin urmare, One Class SVM are majoritatea avantajelor celui din urmă, precum
 garanția optimului global datorită funcţiei convexe pe care
-o minimizăm, faptul că este relativ robust în spaţii cu 
-multe dimensiuni și că poate fi folosit chiar și dacă 
+o minimizăm. \textcolor{blue}{Pentru problemele neconvexe, probabilitatea de 
+a găsi o soluție la o distanță acceptabilă de optimul global, în general, 
+scade cu creşterea dimensionalității. Mulţumită convexităţii, 
+nu apare această dificultate la One Class SVM. De asemenea, 
+algoritmul poate fi folosit eficient chiar și dacă 
 numărul de caracteristici al punctelor din set este mai
-mare decât cardinalul setului.
+mare decât cardinalul setului, datorită complexității de timp 
+polinomiale.}
 
 Totuşi, acest model devine imposibil de folosit pentru 
 seturi mari de date, complexitatea de timp lasă de dorit 
 la antrenare, iar găsirea hiperparametrilor optimi este 
-dificilă, atât din lipsa unor reguli stricte după care 
-să ne ghidăm, dar și din faptul că o căutare exhaustivă 
+dificilă, \textcolor{blue}{atât din lipsa unor euristici bune după care 
+să ne ghidăm în căutarea acestora, dar și din faptul că verificarea 
+unui număr mare de combinații de hiperparametri  
 ar dura prea mult din cauza complexității de timp ridicate 
 la antrenare. De asemenea, rezultatele date de acest model 
-nu pot fi ușor interpretate, deoarece ele reprezintă distanțe,
-nu probabilități.
+nu pot fi ușor interpretate. Acestea reprezintă distanţele punctelor 
+faţă de graniţa de separare, iar scorurile de anomalie sunt decise 
+în funcţie de distanţele menţionate anterior, dar ele nu sunt probabilități.
+}
 
 \subsection{Formularea matematică}
 
@@ -136,10 +154,10 @@ Prima formulare ce implică un hiperplan de separare
 \begin{equation}
     \begin{aligned}
     & \underset{w, \rho, \xi}{\text{min}}
-    & & \frac{1}{2} \|w\|^2 + \frac{1}{\nu n} \sum_{i=1}^{n} \xi_i - \rho \\
+    & & \frac{1}{2} \|w\|^2 + \frac{1}{\nu N} \sum_{i=1}^{N} \xi_i - \rho \\
     & \text{cu constrângerea}
-    & & \langle w, \phi(x_i) \rangle \geq \rho - \xi_i, \quad i=1,2,\ldots,n \\
-    &&& \xi_i \geq 0, \quad i=1,2,\ldots,n \\
+    & & \langle w, \phi(x_i) \rangle \geq \rho - \xi_i, \quad i=1,2,\ldots,N \\
+    &&& \xi_i \geq 0, \quad i=1,2,\ldots,N \\
     \end{aligned}
     \end{equation}
     
@@ -148,24 +166,24 @@ Prima formulare ce implică un hiperplan de separare
         \item $\rho$ este termenul de influenţă
         \item $\xi_i$ sunt variabilele de relaxare pentru încălcarea marginii
         \item $\phi(x_i)$ este funcţia de scufundare pentru $x_i$.
-        \item $n$ este numărul total de puncte
+        \item $N$ este numărul total de puncte
         \item $\nu$ este marginea superioară pentru ponderea de anomalii şi marginea 
         inferioară pentru ponderea de vectori suport
     
     \end{itemize}
 
 
-    împreună cu forma sa duală ce implică folosirea unei funcţii kernel pentru găsirea unui hiperplan 
+    Forma sa duală implică folosirea unei funcţii kernel pentru găsirea unui hiperplan 
     de separare într-un spaţiu cu mai multe dimensiuni decât cel iniţial
 
 
     \begin{equation}
         \begin{aligned}
         & \underset{\alpha}{\text{min}}
-        & & \frac{1}{2} \sum_{i=1}^{n} \sum_{j=1}^{n} \alpha_i \alpha_j K(x_i, x_j) \\
+        & & \frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_i \alpha_j K(x_i, x_j) \\
         & \text{cu constrângerea}
-        & & 0 \leq \alpha_i \leq \frac{1}{\nu n}, \quad i=1,2,\ldots,n \\
-        &&& \sum_{i=1}^{n} \alpha_i = 1
+        & & 0 \leq \alpha_i \leq \frac{1}{\nu N}, \quad i=1,2,\ldots,N \\
+        &&& \sum_{i=1}^{N} \alpha_i = 1
         \end{aligned}
         \end{equation}
     
@@ -179,10 +197,10 @@ A doua formulare ce implică găsirea hipersferei minime
     \begin{equation}
         \begin{aligned}
         & \underset{R, c, \xi}{\text{min}}
-        & & R^2 + \frac{1}{\nu n} \sum_{i=1}^{n} \xi_i \\
+        & & R^2 + \frac{1}{\nu N} \sum_{i=1}^{N} \xi_i \\
         & \text{cu constrângerea}
-        & & \|\phi(x_i) - c\|^2 \leq R^2 + \xi_i, \quad i=1,2,\ldots,n \\
-        &&& \xi_i \geq 0, \quad i=1,2,\ldots,n \\
+        & & \|\phi(x_i) - c\|^2 \leq R^2 + \xi_i, \quad i=1,2,\ldots,N \\
+        &&& \xi_i \geq 0, \quad i=1,2,\ldots,N \\
         \end{aligned}
         \end{equation}
         
@@ -200,7 +218,7 @@ lor sunt mulțimi convexe. Chiar
 care conține un termen la pătrat în dreapta 
 inegalității poate fi redusă la o constrângere liniară
 introducând o nouă variabilă $R_2 = R ^ 2$ cu constrângerea 
-$R_2 >= 0$.
+$R_2 \geq 0$.
 
 Deci știm că problemele de optimizare
 sunt convexe și astfel avem garanția unui unic minim global. 
@@ -235,7 +253,7 @@ O implementare a acestei metode se poate găsi în biblioteca LIBSVM\cite{LIBSVM
 
 \subsection{Ideea algoritmului}
 
-Este prea restrictiv să presupunem ca fiecare punct dintr-un set de date 
+Este prea restrictiv să presupunem că fiecare punct dintr-un set de date 
 provine din aceeaşi distribuţie unimodală. Prin urmare, a apărut tehnica de bază 
 \textbf{"Mixture model"} ce îşi propune să elimine presupunerea anterioară pentru 
 a putea modela şi distribuţii multimodale care poate nu provin nici măcar din aceeaşi 
@@ -261,7 +279,8 @@ cu margini de decizie neliniare.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{images/gmm_anomalies.pdf}
-    \caption{Detecţia anomaliilor cu 5 componente Gaussiene}
+    \caption{Detecţia anomaliilor cu $K=5$ componente Gaussiene.
+    $N=1050$ puncte cu $d=2$ atribute.}
 \end{figure}
 
 \section{Caracteristici}
@@ -376,7 +395,7 @@ funcţia densitate de probabilitate din care au fost generate datele.
 
 Tehnica de bază utilizează un kernel funcţie de distribuţie probabilitate
 pe care "îl plasăm" la fiecare punct din setul de date, căruia îi oferim o pondere 
-de $\frac{1}{n}$, unde $n$ este numărul de observaţii. Apoi, distribuţia adevărată
+de $\frac{1}{N}$, unde $N$ este numărul de observaţii. Apoi, distribuţia adevărată
 este aproximată prin adunarea tuturor rezultatelor precedente. Procesul este similar 
 aflării ariei de sub graficul unei funcţii cu ajutorul unei integrale ce 
 apare dintr-o sumă de valori ale funcţiei într-o infinitate de puncte.
@@ -405,7 +424,8 @@ distribuţiile obţinute mai sus si le împărţim la numărul total de puncte.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{images/kde_anomalies.pdf}
-    \caption{Anomaliile sunt reprezentate de punctele roşii}
+    \caption{Anomaliile sunt reprezentate de punctele roşii.
+    $N=110$ puncte cu $d=2$ atribute.}
 \end{figure}
 
 \section{Caracteristici}
@@ -435,11 +455,11 @@ distribuţiei.
 Densitatea estimată de kernel într-un punct $x$ este dată de
 
 \begin{equation}
-\hat{f}_h(x) = \frac{1}{nh} \sum_{i=1}^{n} K\left(\frac{x - x_i}{h}\right)
+\hat{f}_h(x) = \frac{1}{nh} \sum_{i=1}^{N} K\left(\frac{x - x_i}{h}\right)
 \end{equation}
 
 \begin{itemize}
-    \item $n$ este numărul total de puncte
+    \item $N$ este numărul total de puncte
     \item $h$ este lăţimea de bandă
     \item $K(u)$ este funcţia kernel 
 \end{itemize}
@@ -458,7 +478,7 @@ setul de date pe care este antrenat, etapa de învăţare, practic, nefiind
 existentă. Totuşi, o abordare cu forţă brută ar necesita calcularea 
 funcţiei kernel între toate perechile de puncte memorate şi cele pentru 
 care dorim să aflăm densitatea de probabilitate, adică o complexitate de timp 
-de $O(NM)$, unde $N$ este numărul de puncte de antrenare şi $M$ este numărul de puncte 
+de $O(NM)$, unde $N$ este numărul total de puncte şi $M$ este numărul de puncte 
 evaluate.
 
 O îmbunătăţire ar putea fi utilizarea unei structuri de date ce oferă 
@@ -479,7 +499,9 @@ Metodele
 prezentate mai sus pot estima funcţia de densitate probabilitate doar 
 pentru un singur $h$. Dacă dorim să testăm performanţa pe mai multe valori $h$, 
 trebuie să rulăm acei algoritmi de mai multe ori. Acest lucru va duce la o perioadă 
-mult prea mare de căutare a hiperparametrului. 
+mult prea mare de căutare a hiperparametrului \textcolor{blue}
+{în lipsa resurselor de calcul necesare 
+pentru a paraleliza procesul.}
 
 Astfel, a apărut şi o variantă generalizată a modelelor ce foloseau un 
 $h$ fix, menită să scadă timpul de căutare a valorii optime pentru lăţimea 
@@ -562,7 +584,7 @@ a ratei de fals pozitiv pe axa X şi a ratei de adevărat pozitiv pe axa Y.
 \textbf{Punctul 
 ideal al graficului se află în colţul din stânga sus} pentru ca ne dorim o 
 rată de fals pozitiv egală cu 0 şi o rată de adevărat pozitiv egală cu 1. Prin urmare,
-ne dorim sa maximizăm rata de adevărat pozitiv şi de a minimiza rata de fals pozitiv.
+ne dorim să maximizăm rata de adevărat pozitiv şi de a minimiza rata de fals pozitiv.
 
 Pentru a crea graficul, avem nevoie de \textbf{probabilităţile sau valorile de încredere} 
 pentru fiecare observaţie din setul de  testare, generate de funcţia de decizie a 
@@ -632,7 +654,8 @@ Ilustrăm aceste diferenţe printr-un exemplu ce are ca măsură de evaluare bin
 \textbf{accuracy},
 şi care arată cum metodele acoperă nevoi diferite.
 
-Ponderea claselor este extrem de neechilibrată în setul nostru de date, anomaliile 
+După cum vom vedea şi în capitolul următor, 
+ponderea claselor este extrem de neechilibrată în setul nostru de date, anomaliile 
 reprezentând doar $0.017\%$ din total. Prin urmare, dacă dorim să maximizăm 
 micro average accuracy, putem alege un model trivial ce mereu prezice clasa majoritară.
 Am obţine un accuracy de peste $99.9\%$ cu un minim de efort!

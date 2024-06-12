@@ -16,7 +16,10 @@ pentru a analiza performanţa algoritmilor.
 
 A doua a fost de folos pentru că ne-a oferit 
 o multitudine de metrici care într-un context strict nesupervizat nu ar fi existat, fiind 
-nevoie de inspecţia unui om pentru analiză.
+nevoie de inspecţia unui om pentru analiză. \textcolor{blue}{În lumea reală, cele mai multe seturi de date
+nu sunt etichetate, iar găsirea unui expert pentru etichetare este, 
+de cele mai multe ori,
+costisitoare.}
 
 Alegerea metricilor corespunzătoare
 este probabil una din cele mai dificile părţi atunci când căutăm o soluţie eficientă pentru 
@@ -28,7 +31,11 @@ De asemenea, am analizat trei algoritmi cu caracteristici diferite, dar cu
 scopuri similare, anume idenfiticarea anomaliilor.
 
 One Class SVM se 
-foloseşte de un hiperplan de separare pentru a împărţi spaţiul Hilbert într-o porţiune 
+foloseşte de un hiperplan de separare \textcolor{blue}{
+ce permite posibile nerespectări ale graniţei
+de separare în funcţie de parametrii optimi găsiţi în urma antrenării,
+pentru a împărţi spaţiul, posibil Hilbert dacă folosim un alt kernel decât cel 
+liniar}, într-o porţiune 
 care cuprinde toate punctele normale şi una care cuprinde restul punctelor izolate. Astfel,
 putem spune că acesta face o clasificare dură a anomaliilor, întrucât ne indică doar daca
 o observaţie este normală sau nu. 
@@ -41,7 +48,7 @@ Astfel, putem spune că acestea fac o clasificare slabă a anomaliilor, întruc�
 cât de probabil este ca punctul să fie normal sau nu, dar nu ne indică concret clasa 
 de care aparţine.
 
-Deşi am întâmpinat probleme în ilustrarea graficului ROC Curve pentru algoritmul cu clasificare
+Deşi am întâmpinat probleme în ilustrarea curbei ROC pentru algoritmul cu clasificare
 dură, am demonstrat cum putem transforma distanţele produse de funcţia de decizie în valori 
 de încredere pentru a obţine o clasificare slabă artificială.
 
