@@ -575,9 +575,9 @@ va tinde către valoarea mai mică dintre aceste 2 metrici. Pentru a o maximiza,
 ar trebui sa avem o valoare mare atât pentru precision, cât şi pentru recall,
 fapt ce ar duce la un model ideal.
 
-\subsection{AUC şi ROC Curve}
+\subsection{AUC şi Curba ROC}
 
-ROC Curve ne ajută să evaluăm calitatea modelului prin reprezentarea grafică 
+Curba ROC ne ajută să evaluăm calitatea modelului prin reprezentarea grafică 
 a ratei de fals pozitiv pe axa X şi a ratei de adevărat pozitiv pe axa Y. 
 \textbf{Punctul 
 ideal al graficului se află în colţul din stânga sus} pentru ca ne dorim o 
@@ -588,7 +588,7 @@ Pentru a crea graficul, avem nevoie de \textbf{probabilităţile sau valorile de
 pentru fiecare observaţie din setul de  testare, generate de funcţia de decizie a 
 modelului respectiv. Punctele de pe grafic pot fi văzute precum clasificatoare 
 separate ce diferă prin \textbf{pragul} aplicat funcţiei de decizie. Prin urmare, dacă
-dorim să ilustrăm ROC Curve, avem nevoie de un algoritm ce are ca valori de ieşire
+dorim să ilustrăm Curba ROC, avem nevoie de un algoritm ce are ca valori de ieşire
 scoruri care pot fi comparate. One Class SVM, prin definiţie, nu oferă astfel de 
 rezultate, aşa că va trebui să îl tratăm în mod diferit.
 
@@ -599,7 +599,7 @@ probabilităţilor, precum Gaussian Mixture Model şi Kernel Density Estimation,
 sau efectiv reducând valorile pozitive la $+1$ şi pe cele negative la $-1$,
 precum One Class SVM.
 
-Totuşi, ROC Curve are caracter vizual şi nu ne oferă o măsură concretă a performanţei.
+Totuşi, Curba ROC are caracter vizual şi nu ne oferă o măsură concretă a performanţei.
 De aceea, avem nevoie de \textbf{AUC}, valoare ce reprezintă aria de sub grafic. Cu cât aria
 este mai mare, cu atât modelul este mai bun.
 
