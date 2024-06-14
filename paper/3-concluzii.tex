@@ -16,10 +16,10 @@ pentru a analiza performanţa algoritmilor.
 
 A doua a fost de folos pentru că ne-a oferit 
 o multitudine de metrici care într-un context strict nesupervizat nu ar fi existat, fiind 
-nevoie de inspecţia unui om pentru analiză. \textcolor{blue}{În lumea reală, cele mai multe seturi de date
+nevoie de inspecţia unui om pentru analiză. În lumea reală, cele mai multe seturi de date
 nu sunt etichetate, iar găsirea unui expert pentru etichetare este, 
 de cele mai multe ori,
-costisitoare.}
+costisitoare.
 
 Alegerea metricilor corespunzătoare
 este probabil una din cele mai dificile părţi atunci când căutăm o soluţie eficientă pentru 
@@ -31,11 +31,11 @@ De asemenea, am analizat trei algoritmi cu caracteristici diferite, dar cu
 scopuri similare, anume idenfiticarea anomaliilor.
 
 One Class SVM se 
-foloseşte de un hiperplan de separare \textcolor{blue}{
+foloseşte de un hiperplan de separare
 ce permite posibile nerespectări ale graniţei
 de separare în funcţie de parametrii optimi găsiţi în urma antrenării,
 pentru a împărţi spaţiul, posibil Hilbert dacă folosim un alt kernel decât cel 
-liniar}, într-o porţiune 
+liniar, într-o porţiune 
 care cuprinde toate punctele normale şi una care cuprinde restul punctelor izolate. Astfel,
 putem spune că acesta face o clasificare dură a anomaliilor, întrucât ne indică doar daca
 o observaţie este normală sau nu. 

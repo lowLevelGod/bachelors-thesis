@@ -21,9 +21,9 @@ aproximarea cât mai bună a etichetei $y_{N + 1}$ pentru o observaţie nouă
 $x_{N + 1}$.
 
 Învăţarea \textbf{supervizată} poartă acest nume deoarece necesită supraveghere 
-umană pentru a putea funcţiona. Un specialist \textcolor{blue}
-{din domeniul actual, în cazul 
-nostru, bancar,} trebuie 
+umană pentru a putea funcţiona. Un specialist
+din domeniul actual, în cazul 
+nostru, bancar, trebuie 
 să parcurgă fiecare observaţie din setul de date şi să îi atribuie 
 o \textbf{etichetă} corespunzătoare $y_{i}$. Acest lucru este evident dificil, având în 
 vedere că seturile de date cu minim sute de mii de entităţi sunt des întâlnite.
@@ -90,9 +90,9 @@ ideea de bază în novelty detection cu metode nesupervizate este similară. Nu 
 nevoie de date adnotate la antrenare şi este suficient un set mic pentru testarea 
 ulterioară a performanţei.
 
-\textcolor{blue}{
+
 Mai jos prezentăm algoritmii pentru detectarea anomaliilor folosiţi în această lucrare.
-}
+
 
 \section{One Class SVM cu kernel}
 
@@ -111,9 +111,8 @@ hipersfere} care să includă toate punctele din setul de date\cite{tax2004suppo
     \centering
     \includegraphics[width=\linewidth]{images/cvx_ocsvm_figures.pdf}
     \caption{Varianta Schölkopf et al în dreapta şi varianta Tax et al în stânga.
-    \textcolor{blue}{
         Punctele roşii reprezintă anomaliile adevărate. 
-        $N=105$ puncte şi $d=2$ atribute.}
+        $N=105$ puncte şi $d=2$ atribute.
     }
 \end{figure}
 
@@ -125,19 +124,19 @@ păstrând posibilitatea de a putea introduce neliniarități
 cu ajutorul funcţiilor de kernel ce au fost studiate extensiv.
 Prin urmare, One Class SVM are majoritatea avantajelor celui din urmă, precum
 garanția optimului global datorită funcţiei convexe pe care
-o minimizăm. \textcolor{blue}{Pentru problemele neconvexe, probabilitatea de 
+o minimizăm. Pentru problemele neconvexe, probabilitatea de 
 a găsi o soluție la o distanță acceptabilă de optimul global, în general, 
 scade cu creşterea dimensionalității. Mulţumită convexităţii, 
 nu apare această dificultate la One Class SVM. De asemenea, 
 algoritmul poate fi folosit eficient chiar și dacă 
 numărul de caracteristici al punctelor din set este mai
 mare decât cardinalul setului, datorită complexității de timp 
-polinomiale.}
+polinomiale.
 
 Totuşi, acest model devine imposibil de folosit pentru 
 seturi mari de date, complexitatea de timp lasă de dorit 
 la antrenare, iar găsirea hiperparametrilor optimi este 
-dificilă, \textcolor{blue}{atât din lipsa unor euristici bune după care 
+dificilă, atât din lipsa unor euristici bune după care 
 să ne ghidăm în căutarea acestora, dar și din faptul că verificarea 
 unui număr mare de combinații de hiperparametri  
 ar dura prea mult din cauza complexității de timp ridicate 
@@ -145,7 +144,6 @@ la antrenare. De asemenea, rezultatele date de acest model
 nu pot fi ușor interpretate. Acestea reprezintă distanţele punctelor 
 faţă de graniţa de separare, iar scorurile de anomalie sunt decise 
 în funcţie de distanţele menţionate anterior, dar ele nu sunt probabilități.
-}
 
 \subsection{Formularea matematică}
 
@@ -499,9 +497,9 @@ Metodele
 prezentate mai sus pot estima funcţia de densitate probabilitate doar 
 pentru un singur $h$. Dacă dorim să testăm performanţa pe mai multe valori $h$, 
 trebuie să rulăm acei algoritmi de mai multe ori. Acest lucru va duce la o perioadă 
-mult prea mare de căutare a hiperparametrului \textcolor{blue}
-{în lipsa resurselor de calcul necesare 
-pentru a paraleliza procesul.}
+mult prea mare de căutare a hiperparametrului 
+în lipsa resurselor de calcul necesare 
+pentru a paraleliza procesul.
 
 Astfel, a apărut şi o variantă generalizată a modelelor ce foloseau un 
 $h$ fix, menită să scadă timpul de căutare a valorii optime pentru lăţimea 
